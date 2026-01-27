@@ -1,0 +1,90 @@
+export interface Point {
+	x: number;
+	y: number;
+}
+
+export function dist(p1: Point, p2: Point): number {
+	return Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2);
+}
+
+export function lerp(p1: Point, p2: Point, t: number): Point {
+	return {
+		x: p1.x + (p2.x - p1.x) * t,
+		y: p1.y + (p2.y - p1.y) * t,
+	};
+}
+
+/**
+ * 计算角度 (0-360)
+ */
+export function getAngle(p1: Point, p2: Point): number {
+	return (Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180) / Math.PI;
+}
+
+/**
+ * 计算两个向量之间的夹角 (有符号)
+ */
+export function getAngleBetween(v1: Point, v2: Point): number {
+	let angle = getAngle({ x: 0, y: 0 }, v2) - getAngle({ x: 0, y: 0 }, v1);
+	while (angle <= -180) angle += 360;
+	while (angle > 180) angle -= 360;
+	return angle;
+}
+
+/**
+ * 3次贝塞尔曲线
+ */
+export function cubicBezier(p0: Point, p1: Point, p2: Point, p3: Point, t: number): Point {
+	const mt = 1 - t;
+	return {
+		x: mt ** 3 * p0.x + 3 * mt ** 2 * t * p1.x + 3 * mt * t ** 2 * p2.x + t ** 3 * p3.x,
+		y: mt ** 3 * p0.y + 3 * mt ** 2 * t * p1.y + 3 * mt * t ** 2 * p2.y + t ** 3 * p3.y,
+	};
+}
+
+/**
+ * 获取两条线段的中心控制点（用于简单的平滑）
+ */
+export function getCornerSmoothPoints(
+	pPrev: Point,
+	pCorner: Point,
+	pNext: Point,
+	ratio: number = 0.2,
+): Point[] {
+	const d1 = dist(pPrev, pCorner);
+	const d2 = dist(pCorner, pNext);
+	const len = Math.min(d1, d2) * ratio;
+
+	const t1 = 1 - len / d1;
+	const t2 = len / d2;
+
+	const pStart = lerp(pPrev, pCorner, t1);
+	const pEnd = lerp(pCorner, pNext, t2);
+
+	return [pStart, pEnd];
+}
+
+/**
+ * Catmull-Clark 风格的 1D 折线平滑（简单的中点细分）
+ */
+export function smoothPath(points: Point[], iterations: number = 1): Point[] {
+	let result = [...points];
+	for (let i = 0; i < iterations; i++) {
+		const next: Point[] = [];
+		if (result.length < 3)
+			return result;
+
+		next.push(result[0]);
+		for (let j = 0; j < result.length - 1; j++) {
+			const p1 = result[j];
+			const p2 = result[j + 1];
+
+			// 细分点
+			next.push(lerp(p1, p2, 0.25));
+			next.push(lerp(p1, p2, 0.75));
+		}
+		next.push(result[result.length - 1]);
+		result = next;
+	}
+	return result;
+}

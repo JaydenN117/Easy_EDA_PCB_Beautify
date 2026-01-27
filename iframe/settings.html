@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>设置 - 圆滑布线 & 泪滴工具</title>
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		body {
+			font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+			background: #f5f7fa;
+			color: #333;
+			line-height: 1.6;
+			padding: 20px;
+		}
+
+		.container {
+			max-width: 500px;
+			margin: 0 auto;
+			background: white;
+			border-radius: 12px;
+			box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+			padding: 30px;
+		}
+
+		.title {
+			font-size: 24px;
+			font-weight: 600;
+			color: #1a1a1a;
+			margin-bottom: 24px;
+			padding-bottom: 16px;
+			border-bottom: 2px solid #e8eaed;
+		}
+
+		.form-group {
+			margin-bottom: 24px;
+		}
+
+		.form-group label {
+			display: block;
+			margin-bottom: 8px;
+		}
+
+		.label-text {
+			display: block;
+			font-size: 14px;
+			font-weight: 500;
+			color: #333;
+			margin-bottom: 4px;
+		}
+
+		.label-hint {
+			display: block;
+			font-size: 12px;
+			color: #666;
+		}
+
+		.input-group {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+
+		.input-group input[type="number"] {
+			flex: 1;
+			padding: 10px 12px;
+			border: 2px solid #e0e0e0;
+			border-radius: 6px;
+			font-size: 14px;
+			transition: border-color 0.2s;
+		}
+
+		.input-group input[type="number"]:focus {
+			outline: none;
+			border-color: #4285f4;
+		}
+
+		.unit-display {
+			padding: 10px 16px;
+			background: #f0f0f0;
+			border-radius: 6px;
+			font-size: 14px;
+			font-weight: 500;
+			color: #666;
+			min-width: 50px;
+			text-align: center;
+		}
+
+		.radio-group {
+			display: flex;
+			gap: 16px;
+		}
+
+		.radio-label {
+			display: flex;
+			align-items: center;
+			cursor: pointer;
+			padding: 10px 16px;
+			border: 2px solid #e0e0e0;
+			border-radius: 6px;
+			transition: all 0.2s;
+		}
+
+		.radio-label:hover {
+			border-color: #4285f4;
+			background: #f8f9ff;
+		}
+
+		.radio-label input[type="radio"] {
+			margin-right: 8px;
+			cursor: pointer;
+		}
+
+		.radio-label input[type="radio"]:checked + span {
+			color: #4285f4;
+			font-weight: 500;
+		}
+
+		.toggle-group {
+			display: flex;
+			align-items: center;
+			min-height: 44px;
+		}
+
+		.toggle-label {
+			display: flex;
+			align-items: center;
+			cursor: pointer;
+			gap: 12px;
+			width: 100%;
+		}
+
+		.toggle-label input[type="checkbox"] {
+			display: none;
+		}
+
+		.toggle-slider {
+			position: relative;
+			width: 48px;
+			height: 24px;
+			background: #ccc;
+			border-radius: 24px;
+			transition: background 0.3s;
+		}
+
+		.toggle-slider::before {
+			content: '';
+			position: absolute;
+			width: 20px;
+			height: 20px;
+			border-radius: 50%;
+			background: white;
+			top: 2px;
+			left: 2px;
+			transition: transform 0.3s;
+		}
+
+		.toggle-label input[type="checkbox"]:checked + .toggle-slider {
+			background: #4285f4;
+		}
+
+		.toggle-label input[type="checkbox"]:checked + .toggle-slider::before {
+			transform: translateX(24px);
+		}
+
+		.toggle-text {
+			font-size: 14px;
+			color: #666;
+		}
+
+		.toggle-label input[type="checkbox"]:checked ~ .toggle-text {
+			color: #4285f4;
+			font-weight: 500;
+		}
+
+		.button-group {
+			display: flex;
+			gap: 12px;
+			margin-top: 32px;
+			padding-top: 24px;
+			border-top: 1px solid #e8eaed;
+		}
+
+		.btn {
+			flex: 1;
+			padding: 12px 24px;
+			border: none;
+			border-radius: 6px;
+			font-size: 14px;
+			font-weight: 500;
+			cursor: pointer;
+			transition: all 0.2s;
+		}
+
+		.btn-primary {
+			background: #4285f4;
+			color: white;
+		}
+
+		.btn-primary:hover {
+			background: #3367d6;
+		}
+
+		.btn-primary:active {
+			background: #2851a3;
+		}
+
+		.btn-secondary {
+			background: #f0f0f0;
+			color: #666;
+		}
+
+		.btn-secondary:hover {
+			background: #e0e0e0;
+		}
+
+		.btn-secondary:active {
+			background: #d0d0d0;
+		}
+
+		@media (max-width: 600px) {
+			.container {
+				padding: 20px;
+			}
+			.radio-group {
+				flex-direction: column;
+			}
+			.button-group {
+				flex-direction: column-reverse;
+			}
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<h1 class="title">设置</h1>
+		
+		<form id="settingsForm">
+			<div class="form-group">
+				<label for="cornerRadius">
+					<span class="label-text">圆角半径</span>
+					<span class="label-hint">控制圆弧过渡的半径大小</span>
+				</label>
+				<div class="input-group">
+					<input 
+						type="number" 
+						id="cornerRadius" 
+						name="cornerRadius" 
+						min="0.1" 
+						step="0.1"
+						value="0.5"
+						required
+					>
+					<span class="unit-display" id="unitDisplay">mm</span>
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label>
+					<span class="label-text">单位</span>
+					<span class="label-hint">选择测量单位</span>
+				</label>
+				<div class="radio-group">
+					<label class="radio-label">
+						<input type="radio" name="unit" value="mm" checked>
+						<span>毫米 (mm)</span>
+					</label>
+					<label class="radio-label">
+						<input type="radio" name="unit" value="mil">
+						<span>密尔 (mil)</span>
+					</label>
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label>
+					<span class="label-text">自动泪滴</span>
+					<span class="label-hint">圆滑布线时是否自动生成泪滴</span>
+				</label>
+				<div class="toggle-group">
+					<label class="toggle-label">
+						<input type="checkbox" name="syncTeardrops" id="syncTeardrops">
+						<span class="toggle-slider"></span>
+						<span class="toggle-text">启用</span>
+					</label>
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label>
+					<span class="label-text">调试模式</span>
+					<span class="label-hint">在控制台打印详细日志</span>
+				</label>
+				<div class="toggle-group">
+					<label class="toggle-label">
+						<input type="checkbox" name="debug" id="debug">
+						<span class="toggle-slider"></span>
+						<span class="toggle-text">启用</span>
+					</label>
+				</div>
+			</div>
+
+			<div class="button-group">
+				<button type="button" class="btn btn-secondary" id="cancelBtn">取消</button>
+				<button type="submit" class="btn btn-primary">保存</button>
+			</div>
+		</form>
+	</div>
+
+	<script>
+		/* global eda */
+
+		// 检查 eda 对象是否可用
+		if (typeof eda === 'undefined') {
+			console.error('EDA API 不可用！请确保在嘉立创EDA扩展环境中运行。');
+			document.body.innerHTML = '<div style="padding: 20px; color: red;">错误: EDA API 不可用</div>';
+		}
+
+		// 获取表单元素
+		const form = document.getElementById('settingsForm');
+		const cornerRadiusInput = document.getElementById('cornerRadius');
+		const unitRadios = document.getElementsByName('unit');
+		const syncTeardropsCheckbox = document.getElementById('syncTeardrops');
+		const debugCheckbox = document.getElementById('debug');
+		const unitDisplay = document.getElementById('unitDisplay');
+		const cancelBtn = document.getElementById('cancelBtn');
+
+		// 加载当前设置
+		async function loadSettings() {
+			try {
+				// 检查 eda API 是否可用
+				if (typeof eda === 'undefined' || !eda.sys_Storage) {
+					throw new Error('EDA Storage API 不可用');
+				}
+				// 从 EDA API 获取设置
+				const settings = await eda.sys_Storage.getExtensionAllUserConfigs();
+
+				// 设置默认值
+				const config = {
+					cornerRadius: 0.5,
+					unit: 'mm',
+					syncTeardrops: true,
+					debug: false,
+					...settings,
+				};
+
+				// 填充表单
+				cornerRadiusInput.value = config.cornerRadius;
+				unitDisplay.textContent = config.unit;
+
+				// 设置单位单选按钮
+				for (const radio of unitRadios) {
+					if (radio.value === config.unit) {
+						radio.checked = true;
+					}
+				}
+
+				// 设置开关
+				syncTeardropsCheckbox.checked = config.syncTeardrops;
+				debugCheckbox.checked = config.debug;
+			}
+			catch (error) {
+				console.error('加载设置失败:', error);
+			}
+		}
+
+		// 单位变化时更新显示并换算数值
+		for (const radio of unitRadios) {
+			radio.addEventListener('change', (e) => {
+				const newUnit = e.target.value;
+				const oldUnit = unitDisplay.textContent;
+				const currentValue = Number.parseFloat(cornerRadiusInput.value);
+
+				// 单位换算：1mm = 39.3701 mil
+				let newValue = currentValue;
+				if (oldUnit === 'mm' && newUnit === 'mil') {
+					// mm 转 mil
+					newValue = currentValue * 39.3701;
+				}
+				else if (oldUnit === 'mil' && newUnit === 'mm') {
+					// mil 转 mm
+					newValue = currentValue / 39.3701;
+				}
+
+				// 更新显示
+				cornerRadiusInput.value = newValue.toFixed(2);
+				unitDisplay.textContent = newUnit;
+			});
+		}
+
+		// 保存设置
+		form.addEventListener('submit', async (e) => {
+			e.preventDefault();
+
+			// 获取选中的单位
+			let selectedUnit = 'mm';
+			for (const radio of unitRadios) {
+				if (radio.checked) {
+					selectedUnit = radio.value;
+					break;
+				}
+			}
+
+			// 构建设置对象
+			const settings = {
+				cornerRadius: Number.parseFloat(cornerRadiusInput.value),
+				unit: selectedUnit,
+				syncTeardrops: syncTeardropsCheckbox.checked,
+				debug: debugCheckbox.checked,
+				replaceOriginal: true,
+				smoothRatio: 0.2,
+				teardropSize: 0.8,
+				iterations: 1,
+			};
+
+			try {
+				// 检查 eda API 是否可用
+				if (typeof eda === 'undefined' || !eda.sys_Storage) {
+					throw new Error('EDA Storage API 不可用');
+				}
+
+				// 保存设置
+				const result = await eda.sys_Storage.setExtensionAllUserConfigs(settings);
+				console.log('设置已保存:', settings, 'result:', result);
+
+				// 显示成功消息
+				if (eda.sys_Message && typeof eda.sys_Message.showToastMessage === 'function') {
+					eda.sys_Message.showToastMessage('配置已保存', 'success');
+				}
+
+				// 延迟关闭窗口
+				setTimeout(() => {
+					if (eda.sys_IFrame && typeof eda.sys_IFrame.closeIFrame === 'function') {
+						eda.sys_IFrame.closeIFrame('settings');
+					}
+					else {
+						window.close();
+					}
+				}, 800);
+			}
+			catch (error) {
+				console.error('保存设置失败:', error);
+				const errorMsg = `保存设置失败: ${error.message || error}`;
+				alert(errorMsg);
+				if (eda && eda.sys_Dialog && typeof eda.sys_Dialog.showInformationMessage === 'function') {
+					eda.sys_Dialog.showInformationMessage(errorMsg, '错误');
+				}
+			}
+		});
+
+		// 取消按钮
+		cancelBtn.addEventListener('click', () => {
+			if (eda.sys_IFrame && typeof eda.sys_IFrame.closeIFrame === 'function') {
+				eda.sys_IFrame.closeIFrame('settings');
+			}
+		});
+
+		// 页面加载时初始化
+		loadSettings();
+	</script>
+</body>
+</html>

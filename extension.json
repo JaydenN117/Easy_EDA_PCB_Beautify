@@ -1,0 +1,53 @@
+{
+	"name": "pro-api-sdk",
+	"uuid": "3911cc55444d4833b5762da1521fe616",
+	"displayName": "圆滑布线&泪滴-熔化PCB",
+	"description": "嘉立创EDA & EasyEDA 专业版扩展 API 开发工具",
+	"version": "1.0.0",
+	"publisher": "",
+	"engines": {
+		"eda": "^3.0.0"
+	},
+	"license": "LGPL-V3",
+	"repository": {
+		"type": "extension-store",
+		"url": ""
+	},
+	"categories": "Other",
+	"keywords": [
+		"SDK"
+	],
+	"images": {
+		"logo": "./images/logo.png"
+	},
+	"homepage": "",
+	"bugs": "",
+	"activationEvents": {},
+	"entry": "./dist/index",
+	"dependentExtensions": {},
+	"headerMenus": {
+		"pcb": [
+			{
+				"id": "SmoothTeardrop",
+				"title": "熔化PCB",
+				"menuItems": [
+					{
+						"id": "SmoothRouting",
+						"title": "圆滑布线",
+						"registerFn": "smoothRouting"
+					},
+					{
+						"id": "AddTeardrops",
+						"title": "生成泪滴",
+						"registerFn": "addTeardrops"
+					},
+					{
+						"id": "Settings",
+						"title": "设置...",
+						"registerFn": "openSettings"
+					}
+				]
+			}
+		]
+	}
+}

@@ -1,0 +1,3 @@
+[submodule "pro-api-sdk"]
+	path = pro-api-sdk
+	url = https://github.com/easyeda/pro-api-sdk.git
