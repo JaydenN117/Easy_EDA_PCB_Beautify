@@ -140,6 +140,8 @@
 		}
 
 		.toggle-slider {
+			display: block;
+			flex-shrink: 0;
 			position: relative;
 			width: 48px;
 			height: 24px;
@@ -171,6 +173,7 @@
 		.toggle-text {
 			font-size: 14px;
 			color: #666;
+			margin-left: 8px;
 		}
 
 		.toggle-label input[type="checkbox"]:checked ~ .toggle-text {
@@ -238,13 +241,13 @@
 </head>
 <body>
 	<div class="container">
-		<h1 class="title">设置</h1>
+		<h1 class="title" data-i18n="设置">设置</h1>
 		
 		<form id="settingsForm">
 			<div class="form-group">
 				<label for="cornerRadius">
-					<span class="label-text">圆角半径</span>
-					<span class="label-hint">控制圆弧过渡的半径大小</span>
+					<span class="label-text" data-i18n="圆角半径">圆角半径</span>
+					<span class="label-hint" data-i18n="控制圆弧过渡的半径大小">控制圆弧过渡的半径大小</span>
 				</label>
 				<div class="input-group">
 					<input 
@@ -253,69 +256,75 @@
 						name="cornerRadius" 
 						min="0.1" 
 						step="0.1"
-						value="0.5"
+						value="20"
 						required
 					>
-					<span class="unit-display" id="unitDisplay">mm</span>
+					<select id="unitSelect" style="padding: 10px; border: 2px solid #e0e0e0; border-radius: 6px; background: #f8f8f8; cursor: pointer;">
+						<option value="mil">mil</option>
+						<option value="mm">mm</option>
+					</select>
 				</div>
 			</div>
 
 			<div class="form-group">
 				<label>
-					<span class="label-text">单位</span>
-					<span class="label-hint">选择测量单位</span>
-				</label>
-				<div class="radio-group">
-					<label class="radio-label">
-						<input type="radio" name="unit" value="mm" checked>
-						<span>毫米 (mm)</span>
-					</label>
-					<label class="radio-label">
-						<input type="radio" name="unit" value="mil">
-						<span>密尔 (mil)</span>
-					</label>
-				</div>
-			</div>
-
-			<div class="form-group">
-				<label>
-					<span class="label-text">自动泪滴</span>
-					<span class="label-hint">圆滑布线时是否自动生成泪滴</span>
+					<span class="label-text" data-i18n="自动泪滴">自动泪滴</span>
+					<span class="label-hint" data-i18n="圆滑布线时是否自动生成泪滴">圆滑布线时是否自动生成泪滴</span>
 				</label>
 				<div class="toggle-group">
 					<label class="toggle-label">
 						<input type="checkbox" name="syncTeardrops" id="syncTeardrops">
 						<span class="toggle-slider"></span>
-						<span class="toggle-text">启用</span>
+						<span class="toggle-text" data-i18n="启用">启用</span>
 					</label>
 				</div>
 			</div>
 
 			<div class="form-group">
 				<label>
-					<span class="label-text">调试模式</span>
-					<span class="label-hint">在控制台打印详细日志</span>
+					<span class="label-text" data-i18n="调试模式">调试模式</span>
+					<span class="label-hint" data-i18n="在控制台打印详细日志">在控制台打印详细日志</span>
 				</label>
 				<div class="toggle-group">
 					<label class="toggle-label">
 						<input type="checkbox" name="debug" id="debug">
 						<span class="toggle-slider"></span>
-						<span class="toggle-text">启用</span>
+						<span class="toggle-text" data-i18n="启用">启用</span>
 					</label>
 				</div>
 			</div>
 
 			<div class="button-group" style="justify-content: space-between;">
 				<div style="font-size: 12px; color: #666; display: flex; align-items: center;">
-					<span id="saveStatus">✅ 设置即时生效</span>
+					<span id="saveStatus" data-i18n="设置即时生效">✅ 设置即时生效</span>
 				</div>
-				<button type="button" class="btn btn-secondary" id="cancelBtn">关闭</button>
+				<button type="button" class="btn btn-secondary" id="cancelBtn" data-i18n="关闭">关闭</button>
 			</div>
 		</form>
 	</div>
 
 	<script>
 		/* global eda */
+
+		// 翻译函数
+		function translatePage() {
+			if (typeof eda === 'undefined' || typeof eda.sys_I18n === 'undefined') return;
+
+			// 翻译所有带 data-i18n 属性的元素
+			const elements = document.querySelectorAll('[data-i18n]');
+			elements.forEach(el => {
+				const key = el.getAttribute('data-i18n');
+				if (key) {
+					const text = eda.sys_I18n.text(key);
+					if (text && text !== key) {
+						el.textContent = text;
+					}
+				}
+			});
+
+			// 翻译 title
+			document.title = eda.sys_I18n.text('设置') + ' - ' + eda.sys_I18n.text('圆滑布线 & 泪滴工具');
+		}
 
 		// 检查 eda 对象是否可用
 		if (typeof eda === 'undefined') {
@@ -326,11 +335,12 @@
 		// 获取表单元素
 		const form = document.getElementById('settingsForm');
 		const cornerRadiusInput = document.getElementById('cornerRadius');
-		const unitRadios = document.getElementsByName('unit');
+		const unitSelect = document.getElementById('unitSelect');
 		const syncTeardropsCheckbox = document.getElementById('syncTeardrops');
 		const debugCheckbox = document.getElementById('debug');
-		const unitDisplay = document.getElementById('unitDisplay');
 		const cancelBtn = document.getElementById('cancelBtn');
+
+		let currentUnitState = 'mil';
 
 		// 加载当前设置
 		async function loadSettings() {
@@ -344,8 +354,8 @@
 
 				// 设置默认值
 				const config = {
-					cornerRadius: 0.5,
-					unit: 'mm',
+					cornerRadius: 20,
+					unit: 'mil',
 					syncTeardrops: true,
 					debug: false,
 					...settings,
@@ -353,14 +363,8 @@
 
 				// 填充表单
 				cornerRadiusInput.value = config.cornerRadius;
-				unitDisplay.textContent = config.unit;
-
-				// 设置单位单选按钮
-				for (const radio of unitRadios) {
-					if (radio.value === config.unit) {
-						radio.checked = true;
-					}
-				}
+				unitSelect.value = config.unit;
+				currentUnitState = config.unit;
 
 				// 设置开关
 				syncTeardropsCheckbox.checked = config.syncTeardrops;
@@ -372,47 +376,36 @@
 		}
 
 		// 单位变化时更新显示并换算数值
-		for (const radio of unitRadios) {
-			radio.addEventListener('change', (e) => {
-				const newUnit = e.target.value;
-				const oldUnit = unitDisplay.textContent;
-				const currentValue = Number.parseFloat(cornerRadiusInput.value);
+		unitSelect.addEventListener('change', (e) => {
+			const newUnit = e.target.value;
+			const oldUnit = currentUnitState;
+			const currentValue = Number.parseFloat(cornerRadiusInput.value);
 
-				// 单位换算：1mm = 39.3701 mil
-				let newValue = currentValue;
-				if (oldUnit === 'mm' && newUnit === 'mil') {
-					// mm 转 mil
-					newValue = currentValue * 39.3701;
-				}
-				else if (oldUnit === 'mil' && newUnit === 'mm') {
-					// mil 转 mm
-					newValue = currentValue / 39.3701;
-				}
+			// 单位换算：1mm = 39.3701 mil
+			let newValue = currentValue;
+			if (oldUnit === 'mm' && newUnit === 'mil') {
+				// mm 转 mil
+				newValue = currentValue * 39.3701;
+			}
+			else if (oldUnit === 'mil' && newUnit === 'mm') {
+				// mil 转 mm
+				newValue = currentValue / 39.3701;
+			}
 
-				// 更新显示
-				cornerRadiusInput.value = newValue.toFixed(2);
-				unitDisplay.textContent = newUnit;
+			// 更新显示
+			cornerRadiusInput.value = newValue.toFixed(2);
+			currentUnitState = newUnit;
 
-				// 触发保存
-				saveSettings();
-			});
-		}
+			// 触发保存
+			saveSettings();
+		});
 
 		// 自动保存设置
 		async function saveSettings() {
-			// 获取选中的单位
-			let selectedUnit = 'mm';
-			for (const radio of unitRadios) {
-				if (radio.checked) {
-					selectedUnit = radio.value;
-					break;
-				}
-			}
-
 			// 构建设置对象
 			const settings = {
 				cornerRadius: Number.parseFloat(cornerRadiusInput.value),
-				unit: selectedUnit,
+				unit: unitSelect.value,
 				syncTeardrops: syncTeardropsCheckbox.checked,
 				debug: debugCheckbox.checked,
 				replaceOriginal: true,
@@ -423,7 +416,7 @@
 
 			try {
 				const statusEl = document.getElementById('saveStatus');
-				if (statusEl) statusEl.textContent = '💾 保存中...';
+				if (statusEl) statusEl.textContent = '💾 ' + (typeof eda !== 'undefined' && eda.sys_I18n ? eda.sys_I18n.text('保存中...') : '保存中...');
 
 				// 检查 eda API 是否可用
 				if (typeof eda !== 'undefined' && eda.sys_Storage) {
@@ -432,14 +425,16 @@
 				}
 				
 				if (statusEl) {
-					statusEl.textContent = '✅ 已保存';
-					setTimeout(() => { statusEl.textContent = '✅ 设置即时生效'; }, 2000);
+					statusEl.textContent = '✅ ' + (typeof eda !== 'undefined' && eda.sys_I18n ? eda.sys_I18n.text('已保存') : '已保存');
+					setTimeout(() => { 
+						statusEl.textContent = '✅ ' + (typeof eda !== 'undefined' && eda.sys_I18n ? eda.sys_I18n.text('设置即时生效') : '设置即时生效'); 
+					}, 2000);
 				}
 			}
 			catch (error) {
 				console.error('保存失败:', error);
 				const statusEl = document.getElementById('saveStatus');
-				if (statusEl) statusEl.textContent = '❌ 保存失败';
+				if (statusEl) statusEl.textContent = '❌ ' + (typeof eda !== 'undefined' && eda.sys_I18n ? eda.sys_I18n.text('保存失败') : '保存失败');
 			}
 		}
 
@@ -457,7 +452,9 @@
 		});
 
 		// 页面加载时初始化
-		loadSettings();
+		loadSettings().then(() => {
+			translatePage();
+		});
 	</script>
 </body>
 </html>
