@@ -20,10 +20,10 @@
 		"Routing"
 	],
 	"images": {
-		"logo": "./images/logo_new.svg"
+		"logo": "./images/logo.png"
 	},
-	"homepage": "",
-	"bugs": "",
+	"homepage": "https://github.com/m-RNA/Easy_EDA_Smooth",
+	"bugs": "https://github.com/m-RNA/Easy_EDA_Smooth",
 	"activationEvents": {
 		"onStartupFinished": true
 	},
