@@ -36,10 +36,10 @@ export async function undoLastOperation() {
 	}
 
 	try {
-		// 查找最新的自动备份
+		// 查找最新的自动备份 (现在的命名包含了 PCB Name，所以需要模糊匹配)
 		const snapshots = await getSnapshots();
-		// 过滤出自动备份
-		const autoBackups = snapshots.filter(s => s.name === 'Smooth Auto Backup');
+		// 过滤出自动备份 (包含 Smooth Auto Backup 关键字)
+		const autoBackups = snapshots.filter(s => s.name.includes('Smooth Auto Backup'));
 
 		if (autoBackups.length === 0) {
 			eda.sys_Message?.showToastMessage('没有可撤销的操作 (未找到备份)');
@@ -211,7 +211,8 @@ export async function smoothRouting(scope: 'selected' | 'all' = 'selected') {
 
 	// 创建快照 (Undo 支持)
 	try {
-		await createSnapshot('Smooth Auto Backup');
+		const snapshotName = scope === 'all' ? 'Smooth Auto Backup (All)' : 'Smooth Auto Backup (Selected)';
+		await createSnapshot(snapshotName);
 	}
 	catch (e: any) {
 		logError(`Failed to create snapshot: ${e.message || e}`);
@@ -660,7 +661,8 @@ export async function smoothRouting(scope: 'selected' | 'all' = 'selected') {
 		}
 
 		if (settings.syncWidthTransition) {
-			await addWidthTransitionsAll();
+			// 在 Smooth 流程中调用，不需要额外快照（Smooth 已创建）
+			await addWidthTransitionsAll(false);
 		}
 	}
 	catch (e: any) {

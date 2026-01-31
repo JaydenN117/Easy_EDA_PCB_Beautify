@@ -686,7 +686,9 @@
                     }
                     
                     const recoverText = api.sys_I18n ? api.sys_I18n.text('恢复') : 'Recover';
-                    const linesText = snap.lines ? snap.lines.length + ' Lines' : '';
+                    const linesCount = snap.lines ? snap.lines.length : 0;
+                    const arcsCount = snap.arcs ? snap.arcs.length : 0;
+                    const linesText = `${linesCount} Lines, ${arcsCount} Arcs`;
                     
                     div.innerHTML = '<div><div class="snapshot-meta">' + nameStr + '</div><div class="snapshot-details">' + timeStr + ' · ' + linesText + '</div></div><button type="button" class="btn btn-white" style="padding:4px 10px;font-size:12px;">' + recoverText + '</button>';
                     

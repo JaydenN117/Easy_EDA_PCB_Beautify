@@ -7,6 +7,7 @@
 import { debugLog, logError } from './logger';
 import { dist } from './math';
 import { getSettings } from './settings';
+import { createSnapshot } from './snapshot';
 
 // 存储创建的过渡元素ID和位置信息
 const TRANSITION_STORAGE_KEY = 'width_transition_data';
@@ -84,6 +85,14 @@ export async function addWidthTransitionsSelected() {
 		eda.sys_LoadingAndProgressBar.showLoading();
 	}
 
+	// 创建快照 (Undo 支持)
+	try {
+		await createSnapshot('Width Transition (Selected)');
+	}
+	catch (e: any) {
+		logError(`Failed to create snapshot: ${e.message || e}`);
+	}
+
 	try {
 		// 获取选中的导线对象（传入数组返回数组）
 		const lineObjects = await eda.pcb_PrimitiveLine.get(allSelectedIds);
@@ -123,8 +132,9 @@ export async function addWidthTransitionsSelected() {
 
 /**
  * 添加线宽过渡 - 处理所有线段（融化时自动调用）
+ * @param createBackup 是否创建快照 (如果是 Smooth 调用，通常已经创建了快照，这里可以选择 false)
  */
-export async function addWidthTransitionsAll() {
+export async function addWidthTransitionsAll(createBackup: boolean = true) {
 	const settings = await getSettings();
 
 	// 读取已保存的过渡数据
@@ -132,6 +142,15 @@ export async function addWidthTransitionsAll() {
 
 	if (eda.sys_LoadingAndProgressBar?.showLoading) {
 		eda.sys_LoadingAndProgressBar.showLoading();
+	}
+
+	if (createBackup) {
+		try {
+			await createSnapshot('Width Transition (All)');
+		}
+		catch (e: any) {
+			logError(`Failed to create snapshot: ${e.message || e}`);
+		}
 	}
 
 	try {

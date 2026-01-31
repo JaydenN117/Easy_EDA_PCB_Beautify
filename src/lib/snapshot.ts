@@ -117,16 +117,44 @@ export async function createSnapshot(name: string = 'Auto Save'): Promise<Routin
 			eda.sys_LoadingAndProgressBar.showLoading();
 		}
 
-		// 获取当前 PCB ID（用于区分多 PCB 工程）
+		// 获取当前 PCB Info
 		let pcbId = 'unknown';
+		let pcbTitle = '';
 		try {
-			const boardInfo = await eda.dmt_Board.getCurrentBoardInfo();
-			if (boardInfo && boardInfo.pcb && boardInfo.pcb.uuid) {
-				pcbId = boardInfo.pcb.uuid;
+			// 先尝试获取当前 PCB 信息
+			const pcbInfo = await eda.dmt_Pcb.getCurrentPcbInfo();
+			if (pcbInfo) {
+				debugLog(`[Snapshot] PCB info found. Name: ${pcbInfo.name}`);
+				pcbTitle = pcbInfo.name;
+				pcbId = pcbInfo.uuid;
+			}
+			else {
+				// 获取板子信息作为备选
+				const boardInfo = await eda.dmt_Board.getCurrentBoardInfo();
+				if (boardInfo) {
+					debugLog(`[Snapshot] Board info found. Name: ${boardInfo.name}`);
+					pcbTitle = boardInfo.pcb?.name || boardInfo.name;
+					if (boardInfo.pcb) {
+						pcbId = boardInfo.pcb.uuid;
+					}
+				}
+				else {
+					debugLog('[Snapshot] No board/PCB info returned');
+				}
 			}
 		}
-		catch {
-			// ignore
+		catch (e: any) {
+			debugLog(`[Snapshot] Failed to get board info: ${e.message || e}`);
+		}
+
+		// 自动附加 PCB 名称前缀
+		let finalName = name;
+		if (pcbTitle) {
+			// 如果传入的名称已经是特定格式，避免重复添加? 暂且假设 name 只是操作名
+			finalName = `[${pcbTitle}] ${name}`;
+		}
+		else {
+			debugLog('[Snapshot] PCB title is empty, using name only');
 		}
 
 		// 获取所有导线、圆弧
@@ -210,7 +238,7 @@ export async function createSnapshot(name: string = 'Auto Save'): Promise<Routin
 
 		const snapshot: RoutingSnapshot = {
 			id: Date.now(),
-			name,
+			name: finalName,
 			timestamp: Date.now(),
 			lines: extractData(lines || [], 'line'),
 			arcs: extractData(arcs || [], 'arc'),
@@ -220,7 +248,7 @@ export async function createSnapshot(name: string = 'Auto Save'): Promise<Routin
 		snapshots.push(snapshot);
 		await saveSnapshots(snapshots);
 
-		debugLog(`[Snapshot] Created snapshot '${name}' with ${snapshot.lines.length} lines, ${snapshot.arcs.length} arcs`);
+		debugLog(`[Snapshot] Created snapshot '${finalName}' with ${snapshot.lines.length} lines, ${snapshot.arcs.length} arcs`);
 
 		// 通知设置界面刷新
 		notifySnapshotChange();
