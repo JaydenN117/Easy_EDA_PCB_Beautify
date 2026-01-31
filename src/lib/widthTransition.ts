@@ -4,6 +4,7 @@
  * 使用三次贝塞尔曲线实现平滑的线宽渐变
  */
 
+import { getSafeSelectedTracks } from './eda_utils';
 import { debugLog, logError } from './logger';
 import { dist, isClose, smootherStep } from './math';
 import { getSettings } from './settings';
@@ -85,51 +86,8 @@ export async function addWidthTransitionsSelected() {
 	}
 
 	try {
-		// 尝试获取选中的导线对象
-		// 增加容错逻辑：当选中混合对象（如 Track + Arc）时，eda.pcb_PrimitiveLine.get 可能会崩溃
-		let lineObjects: any = null;
-
-		try {
-			// 过滤非法 ID
-			const validIds = allSelectedIds.filter(id => id && typeof id === 'string');
-			if (validIds.length > 0) {
-				lineObjects = await eda.pcb_PrimitiveLine.get(validIds);
-			}
-		}
-		catch (err: any) {
-			debugLog(`[Width Transition] standard get() failed, trying getAll() fallback: ${err.message}`);
-			// Fallback: 降级为获取所有线并在内存中过滤
-			try {
-				const allLines = await eda.pcb_PrimitiveLine.getAll();
-				if (Array.isArray(allLines)) {
-					const idSet = new Set(allSelectedIds);
-					lineObjects = allLines.filter((line: any) => {
-						let pid = '';
-						if (typeof line.getState_PrimitiveId === 'function')
-							pid = line.getState_PrimitiveId();
-						else if (line.primitiveId)
-							pid = line.primitiveId;
-
-						return pid && idSet.has(pid);
-					});
-					debugLog(`[Width Transition] Fallback recovered ${lineObjects.length} lines`);
-				}
-			}
-			catch (e2: any) {
-				logError(`[Width Transition Error] Fallback getAll() also failed: ${e2.message}`);
-			}
-		}
-
-		// 确保返回的是数组，并过滤掉 null/undefined
-		let selectedTracks: any[] = [];
-		if (lineObjects) {
-			if (Array.isArray(lineObjects)) {
-				selectedTracks = lineObjects.filter(p => p !== null && p !== undefined);
-			}
-			else {
-				selectedTracks = [lineObjects];
-			}
-		}
+		// 使用安全获取函数处理混合选中
+		const selectedTracks = await getSafeSelectedTracks(allSelectedIds);
 
 		if (selectedTracks.length === 0) {
 			eda.sys_Message?.showToastMessage(eda.sys_I18n.text('没有找到导线'));
