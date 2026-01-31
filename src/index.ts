@@ -13,7 +13,8 @@
 
 import { logError, logInfo, logWarn } from './lib/logger';
 import { getSettings } from './lib/settings';
-import { smoothRouting as smoothTask, undoLastOperation as undoTask } from './lib/smooth';
+import { smoothRouting as smoothTask } from './lib/smooth';
+import { undoLastOperation as undoTask } from './lib/snapshot';
 import * as Snapshot from './lib/snapshot';
 import { addWidthTransitionsAll, addWidthTransitionsSelected } from './lib/widthTransition';
 
@@ -56,8 +57,8 @@ export function activate(_status?: 'onStartupFinished', _arg?: string): void {
 							},
 							{
 								id: 'Undo',
-								title: eda.sys_I18n ? eda.sys_I18n.text('撤销 (Undo)') : '撤销 (Undo)',
-								registerFn: 'undoSmooth',
+								title: eda.sys_I18n ? eda.sys_I18n.text('撤销') : '撤销',
+								registerFn: 'undoOperation',
 							},
 							{
 								id: 'Settings',
@@ -119,7 +120,7 @@ function handleError(e: any) {
 /**
  * 撤销操作
  */
-export async function undoSmooth() {
+export async function undoOperation() {
 	try {
 		await undoTask();
 	}

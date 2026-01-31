@@ -474,3 +474,41 @@ export async function clearSnapshots() {
 	await saveSnapshots([]);
 	notifySnapshotChange();
 }
+
+/**
+ * 撤销上一次操作 (通过恢复快照)
+ * 查找最新的快照并恢复，恢复后删除该快照以支持多级撤销
+ */
+export async function undoLastOperation() {
+	if (eda.sys_LoadingAndProgressBar?.showLoading) {
+		eda.sys_LoadingAndProgressBar.showLoading();
+	}
+
+	try {
+		const snapshots = await getSnapshots();
+
+		if (snapshots.length === 0) {
+			eda.sys_Message?.showToastMessage('没有可撤销的操作');
+			return;
+		}
+
+		// 取最新的一个 (createSnapshot 时已保证按时间倒序)
+		const latest = snapshots[0];
+
+		const success = await restoreSnapshot(latest.id);
+
+		if (success) {
+			// 恢复成功后，删除这个快照，以便下次撤销可以回退到更早的状态
+			await deleteSnapshot(latest.id);
+		}
+	}
+	catch (e: any) {
+		if (eda.sys_Dialog)
+			eda.sys_Dialog.showInformationMessage(`撤销失败: ${e.message}`, 'Undo Error');
+	}
+	finally {
+		if (eda.sys_LoadingAndProgressBar?.destroyLoading) {
+			eda.sys_LoadingAndProgressBar.destroyLoading();
+		}
+	}
+}

@@ -2,7 +2,7 @@ import type { Point } from './math';
 import { debugLog, logError, logWarn } from './logger';
 import { dist, getAngleBetween, lerp } from './math';
 import { getSettings } from './settings';
-import { createSnapshot, getSnapshots, restoreSnapshot } from './snapshot';
+import { createSnapshot } from './snapshot';
 import { addWidthTransitionsAll } from './widthTransition';
 
 /**
@@ -42,46 +42,6 @@ export function getArcLineWidthMap(): Map<string, number> {
  */
 export function makeArcWidthKey(pcbId: string, arcId: string): string {
 	return `${pcbId}_${arcId}`;
-}
-
-/**
- * 撤销上一次平滑操作 (通过恢复快照)
- */
-export async function undoLastOperation() {
-	if (eda.sys_LoadingAndProgressBar?.showLoading) {
-		eda.sys_LoadingAndProgressBar.showLoading();
-	}
-
-	try {
-		// 查找最新的自动备份 (现在的命名包含了 PCB Name，所以需要模糊匹配)
-		const snapshots = await getSnapshots();
-		// 过滤出自动备份 (包含 Smooth Auto Backup 关键字)
-		const autoBackups = snapshots.filter(s => s.name.includes('Smooth Auto Backup'));
-
-		if (autoBackups.length === 0) {
-			eda.sys_Message?.showToastMessage('没有可撤销的操作 (未找到备份)');
-			return;
-		}
-
-		// 取最新的一个
-		const latest = autoBackups.sort((a, b) => b.timestamp - a.timestamp)[0];
-
-		const success = await restoreSnapshot(latest.id);
-
-		if (success) {
-			// 恢复成功后，可以选择删除这个快照，或者保留作为历史
-			// 这里我们选择保留，直到被新的覆盖
-		}
-	}
-	catch (e: any) {
-		if (eda.sys_Dialog)
-			eda.sys_Dialog.showInformationMessage(`撤销失败: ${e.message}`, 'Undo Error');
-	}
-	finally {
-		if (eda.sys_LoadingAndProgressBar?.destroyLoading) {
-			eda.sys_LoadingAndProgressBar.destroyLoading();
-		}
-	}
 }
 
 /**
@@ -262,7 +222,7 @@ export async function smoothRouting(scope: 'selected' | 'all' = 'selected') {
 
 	// 创建快照 (Undo 支持)
 	try {
-		const snapshotName = scope === 'all' ? 'Smooth Auto Backup (All)' : 'Smooth Auto Backup (Selected)';
+		const snapshotName = scope === 'all' ? 'Smooth (All)' : 'Smooth (Selected)';
 		await createSnapshot(snapshotName);
 	}
 	catch (e: any) {
