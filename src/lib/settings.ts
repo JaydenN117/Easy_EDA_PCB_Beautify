@@ -1,11 +1,11 @@
 export interface SmoothSettings {
-	replaceOriginal: boolean;
+	replaceOriginal: boolean; // 是否替换原始线段
 	syncWidthTransition: boolean; // 平滑时同步处理线宽过渡
-	smoothRatio: number;
+	smoothRatio: number; // 平滑系数
 	widthTransitionRatio: number; // 线宽过渡长度系数
 	widthTransitionSegments: number; // 线宽过渡分段数
-	iterations: number;
-	cornerRadius: number;
+	iterations: number; // Catmull-Clark 平滑迭代次数
+	cornerRadius: number; // 圆角半径
 	mergeShortSegments: boolean; // 是否合并短线段
 	unit: 'mm' | 'mil'; // 单位设置
 	debug: boolean; // 调试模式
@@ -15,16 +15,23 @@ const DEFAULT_SETTINGS: SmoothSettings = {
 	replaceOriginal: true,
 	syncWidthTransition: false,
 	smoothRatio: 0.2,
-	widthTransitionRatio: 1.5, // 过渡长度 = 最大线宽 * 1.5
-	widthTransitionSegments: 5,
+	widthTransitionRatio: 3, // 过渡长度 = 线宽差 * 3
+	widthTransitionSegments: 25,
 	iterations: 1,
-	cornerRadius: 25.4, // 默认 25.4mm (1000mil)
+	cornerRadius: 20, // 默认 20mil
 	mergeShortSegments: true,
 	unit: 'mil',
 	debug: false,
 };
 
 const SETTINGS_CACHE_KEY = '_jlc_smooth_settings_cache';
+
+/**
+ * 获取默认设置
+ */
+export function getDefaultSettings(): SmoothSettings {
+	return { ...DEFAULT_SETTINGS };
+}
 
 /**
  * 获取最新设置

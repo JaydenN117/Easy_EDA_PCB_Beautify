@@ -12,7 +12,7 @@
  */
 
 import { logError, logInfo, logWarn } from './lib/logger';
-import { getSettings } from './lib/settings';
+import { getDefaultSettings, getSettings } from './lib/settings';
 import { smoothRouting as smoothTask } from './lib/smooth';
 import { undoLastOperation as undoTask } from './lib/snapshot';
 import * as Snapshot from './lib/snapshot';
@@ -25,6 +25,7 @@ export function activate(_status?: 'onStartupFinished', _arg?: string): void {
 	// 将功能挂载到 eda 全局对象，供 settings.html 调用
 	(eda as any).jlc_eda_smooth_snapshot = Snapshot;
 	(eda as any).jlc_eda_smooth_refreshSettings = getSettings;
+	(eda as any).jlc_eda_smooth_getDefaultSettings = getDefaultSettings;
 
 	// 动态刷新顶部菜单，确保菜单正确显示
 	try {

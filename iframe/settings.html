@@ -552,16 +552,8 @@
         const elDebugLabel = document.getElementById('debugLabel');
         const elMergeShortSegmentsLabel = document.getElementById('mergeShortSegmentsLabel');
 
-        // 默认配置
-        const DEFAULT_CONFIG = {
-            cornerRadius: 500,
-            unit: 'mil',
-            mergeShortSegments: true,
-            syncWidthTransition: false,
-            widthTransitionSegments: 25,
-            widthTransitionRatio: 2.5,
-            debug: false,
-        };
+        // 默认配置 (将在 init 中从 API 获取)
+        let DEFAULT_CONFIG = {};
 
         let currentUnitState = 'mil';
 
@@ -584,6 +576,17 @@
         async function loadSettings() {
             const api = API || getEda();
             if (!api) return;
+            
+            // 尝试同步默认配置配置
+            if (typeof api.jlc_eda_smooth_getDefaultSettings === 'function') {
+                try {
+                    DEFAULT_CONFIG = api.jlc_eda_smooth_getDefaultSettings();
+                    console.log('Loaded defaults from API', DEFAULT_CONFIG);
+                } catch(e) {
+                    console.error('Failed to load defaults', e);
+                }
+            }
+
             try {
                 const settings = await api.sys_Storage.getExtensionAllUserConfigs();
                 const config = {
