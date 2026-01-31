@@ -57,8 +57,8 @@
 					},
 					{
 						"id": "Undo",
-						"title": "撤销 (Undo)",
-						"registerFn": "undoSmooth"
+						"title": "撤销",
+						"registerFn": "undoOperation"
 					},
 					{
 						"id": "Settings",
