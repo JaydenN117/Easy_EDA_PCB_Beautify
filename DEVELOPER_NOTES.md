@@ -7,14 +7,18 @@ This document describes a specific pitfall encountered during the development of
 To understand the solution, we must first understand the host environment. The extension operates within a managed runtime provided by JLC EDA Pro.
 
 ### 1. The `eda` Object as a Singleton
+
 Every extension runtime is injected with a **unique and independent** `eda` object in its root scope.
+
 - **Isolation**: This object is not shared with other extensions, ensuring that properties attached to it do not collide with other installed plugins.
 - **Ubiquity**: This object is accessible globally in both the Main Process (Worker) and the Iframe logic (through the parent scope proxy or direct injection), making it the *only* guaranteed shared memory reference between these contexts.
 
 ### 2. Standard Usage: The Official API Pattern
+
 According to the official documentation, the extension API module contains many specialized classes. All Classes, Enums, Interfaces, and Type Aliases are registered under the EDA base class and instantiated as the `eda` object, which exists in the root scope of every extension runtime.
 
 **Key Characteristics:**
+
 - **Isolation**: Every extension runtime generates an independent `eda` object not shared with others.
 - **Access Pattern**: `eda` + `Class Instance Name` + `Method/Variable`.
 - **Naming Rule**: The system instantiates classes using a specific naming convention: **the first three letters before the underscore are lowercased**.
@@ -89,16 +93,23 @@ export function getCache() {
 
 ### Best Practices
 
-1. **Unique Keys**: Always use a unique prefix (e.g., `_jlc_smooth_...`) to avoid collisions with other extensions or system properties.
+1. **Unique Keys**: Always use a unique prefix (e.g., `_jlc_beautify_...`) to avoid collisions with other extensions or system properties.
 2. **Callbacks**: This applies to callbacks as well. If you need the Main Process to trigger a UI update inside the Iframe, register the callback on the `eda` object rather than a local variable.
 3. **Cleanup**: Be mindful of cleaning up large objects if the extension is unloaded (though rare for this type of extension).
 
 ## Case Study: Snapshot Feature
 
-In the **JLC EDA Smooth** extension, we encountered this with the Snapshot list.
+In the **Easy EDA PCB Beautify** extension, we encountered this with the Snapshot list.
 
 - **Symptom**: Snapshots created automatically by the router were not appearing in the Settings UI list, despite the UI polling for updates.
-- **Fix**: We moved `globalSnapshotsCache` from a file-level variable in `snapshot.ts` to `eda._jlc_smooth_snapshots_cache`. The UI and the Main Process now read/write to the exact same array reference in memory.
+- **Fix**: We moved `globalSnapshotsCache` from a file-level variable in `snapshot.ts` to `eda._jlc_beautify_snapshots_cache`. The UI and the Main Process now read/write to the exact same array reference in memory.
+
+## Iframe Resource Inlining
+
+When using `sys_IFrame.openIFrame`, external CSS (`<link href="...">`) and JS (`<script src="...">`) files referenced in the HTML may fail to load in the extension environment.
+
+**Recommendation**: Always **inline** your CSS and JavaScript directly into the HTML file using `<style>` and `<script>` blocks to ensure the UI renders correctly.
 
 ---
 Created: 2026-01-31
+Updated: 2026-02-02
