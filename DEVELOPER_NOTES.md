@@ -2,6 +2,36 @@
 
 This document describes a specific pitfall encountered during the development of JLC EDA extensions and how to solve it. This is particularly relevant when extensions involve both a Main Process (running in the extension worker) and an Iframe UI (running in a sandboxed iframe).
 
+## Background: The `eda` Global Object
+
+To understand the solution, we must first understand the host environment. The extension operates within a managed runtime provided by JLC EDA Pro.
+
+### 1. The `eda` Object as a Singleton
+Every extension runtime is injected with a **unique and independent** `eda` object in its root scope.
+- **Isolation**: This object is not shared with other extensions, ensuring that properties attached to it do not collide with other installed plugins.
+- **Ubiquity**: This object is accessible globally in both the Main Process (Worker) and the Iframe logic (through the parent scope proxy or direct injection), making it the *only* guaranteed shared memory reference between these contexts.
+
+### 2. Standard Usage: The Official API Pattern
+According to the official documentation, the extension API module contains many specialized classes. All Classes, Enums, Interfaces, and Type Aliases are registered under the EDA base class and instantiated as the `eda` object, which exists in the root scope of every extension runtime.
+
+**Key Characteristics:**
+- **Isolation**: Every extension runtime generates an independent `eda` object not shared with others.
+- **Access Pattern**: `eda` + `Class Instance Name` + `Method/Variable`.
+- **Naming Rule**: The system instantiates classes using a specific naming convention: **the first three letters before the underscore are lowercased**.
+
+| Class Name | Instance Name |
+| --- | --- |
+| `SYS_I18n` | `sys_I18n` |
+| `SYS_ToastMessage` | `sys_ToastMessage` |
+
+```js
+// Example: Calling SYS_I18n.text and SYS_ToastMessage.showMessage
+// Note strictly lowercase 'sys' prefix
+eda.sys_ToastMessage.showMessage(eda.sys_I18n.text('Done'), ESYS_ToastMessageType.INFO);
+```
+
+Because of property **#1 (Isolation)**, we can repurpose this object to store our own global state, solving the isolation problem described below.
+
 ## The Problem: Module-Level Variable Isolation
 
 When developing extensions that share state between the worker logic and the settings UI (iframe), you might encounter situations where updates in one context are not reflected in the other, even if you are accessing what seems to be the same "File" or "API".
