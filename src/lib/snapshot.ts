@@ -69,6 +69,7 @@ export interface RoutingSnapshot {
 	id: number;
 	name: string;
 	timestamp: number;
+	pcbId?: string;
 	lines: any[];
 	arcs: any[];
 	// vias: any[]; // Vias removed to preserve network connectivity
@@ -274,6 +275,7 @@ export async function createSnapshot(name: string = 'Auto Save'): Promise<Routin
 			id: Date.now(),
 			name: finalName,
 			timestamp: Date.now(),
+			pcbId,
 			lines: extractPrimitiveData(lines || [], 'line', pcbId),
 			arcs: extractPrimitiveData(arcs || [], 'arc', pcbId),
 		};
@@ -305,8 +307,9 @@ export async function createSnapshot(name: string = 'Auto Save'): Promise<Routin
  * 只修改变化的部分，避免全图重绘
  * @param snapshotId 快照 ID
  * @param showToast 是否显示详细的恢复结果提示 (Undo 操作时通常关闭，使用自定义提示)
+ * @param requireConfirmation 是否需要用户确认 (用于 UI 列表点击恢复时)
  */
-export async function restoreSnapshot(snapshotId: number, showToast: boolean = true): Promise<boolean> {
+export async function restoreSnapshot(snapshotId: number, showToast: boolean = true, requireConfirmation: boolean = false): Promise<boolean> {
 	try {
 		const snapshots = await getSnapshots();
 
@@ -315,10 +318,6 @@ export async function restoreSnapshot(snapshotId: number, showToast: boolean = t
 			logError(`Snapshot not found with id: ${snapshotId}`, 'Snapshot');
 			eda.sys_Message?.showToastMessage('未找到指定快照');
 			return false;
-		}
-
-		if (eda.sys_LoadingAndProgressBar) {
-			eda.sys_LoadingAndProgressBar.showLoading();
 		}
 
 		// 获取当前 PCB Info 用于数据提取
@@ -336,6 +335,68 @@ export async function restoreSnapshot(snapshotId: number, showToast: boolean = t
 			}
 		}
 		catch { /* ignore */ }
+
+		let confirmed = !requireConfirmation; // 如果不需要确认，默认为 true
+		let isMismatch = false;
+
+		// 1. 优先检查 PCB ID 是否匹配 (这是最高优先级的警告)
+		if (snapshot.pcbId && snapshot.pcbId !== pcbId) {
+			isMismatch = true;
+			if (eda.sys_Dialog && typeof eda.sys_Dialog.showConfirmationMessage === 'function') {
+				confirmed = await new Promise<boolean>((resolve) => {
+					eda.sys_Dialog.showConfirmationMessage(
+						eda.sys_I18n.text
+							? eda.sys_I18n.text('!!! 严重警告：快照所属PCB与当前PCB不一致 !!!\n\n此操作极大概率会导致布线错乱或数据丢失！\n此操作极大概率会导致布线错乱或数据丢失！\n此操作极大概率会导致布线错乱或数据丢失！\n\n系统会自动尝试备份当前状态，但是否继续？')
+							: '!!! SEVERE WARNING: PCB ID MISMATCH !!!\n\nThis will likely corrupt your layout!\nThis will likely corrupt your layout!\nThis will likely corrupt your layout!\n\nSystem will try to backup current state. Continue?',
+						eda.sys_I18n.text ? eda.sys_I18n.text('!!! 危险操作确认 !!!') : '!!! DANGER CONFIRMATION !!!',
+						undefined,
+						undefined,
+						(ok: boolean) => {
+							resolve(ok);
+						},
+					);
+				});
+			}
+			else {
+				logWarn(`Restoring snapshot from different PCB: ${snapshot.pcbId} -> ${pcbId}`, 'Snapshot');
+				confirmed = true;
+			}
+		}
+		// 2. 如果 ID 匹配，但请求了确认 (UI 点击恢复)
+		else if (requireConfirmation) {
+			if (eda.sys_Dialog && typeof eda.sys_Dialog.showConfirmationMessage === 'function') {
+				confirmed = await new Promise<boolean>((resolve) => {
+					eda.sys_Dialog.showConfirmationMessage(
+						eda.sys_I18n.text ? eda.sys_I18n.text('确定要恢复到此快照状态吗？当前画布将被覆盖。') : 'Restore this snapshot? Current canvas will be overwritten.',
+						eda.sys_I18n.text ? eda.sys_I18n.text('恢复快照') : 'Restore Snapshot',
+						undefined,
+						undefined,
+						(ok: boolean) => {
+							resolve(ok);
+						},
+					);
+				});
+			}
+		}
+
+		if (!confirmed) {
+			return false;
+		}
+
+		// 如果是强制恢复 (ID 不匹配), 自动创建一个备份快照以防万一
+		if (isMismatch) {
+			try {
+				const backupName = eda.sys_I18n?.text ? eda.sys_I18n.text('强制恢复前备份') : 'Backup (Pre-Force Restore)';
+				await createSnapshot(backupName);
+			}
+			catch (e) {
+				logWarn(`Failed to create backup snapshot: ${e}`);
+			}
+		}
+
+		if (eda.sys_LoadingAndProgressBar) {
+			eda.sys_LoadingAndProgressBar.showLoading();
+		}
 
 		// 1. 获取当前画板的所有 Line 和 Arc
 		const currentLinesRaw = await eda.pcb_PrimitiveLine.getAll();
@@ -518,17 +579,34 @@ export async function undoLastOperation() {
 			return;
 		}
 
+		// 获取当前 PCB Info 用于筛选
+		let pcbId = 'unknown';
+		try {
+			const pcbInfo = await eda.dmt_Pcb.getCurrentPcbInfo();
+			if (pcbInfo) {
+				pcbId = pcbInfo.uuid;
+			}
+			else {
+				const boardInfo = await eda.dmt_Board.getCurrentBoardInfo();
+				if (boardInfo && boardInfo.pcb) {
+					pcbId = boardInfo.pcb.uuid;
+				}
+			}
+		}
+		catch { /* ignore */ }
+
 		let targetSnapshot: RoutingSnapshot | undefined;
+		let startIndex = 0;
 		const lastRestoredId = getLastRestoredId();
 
 		if (lastRestoredId === null) {
 			// First step: try to restore the previous snapshot (Index 1)
 			if (snapshots.length > 1) {
-				targetSnapshot = snapshots[1];
+				startIndex = 1;
 			}
 			else {
-				// If only one snapshot exists, restore it (undoing un-snapshotted changes)
-				targetSnapshot = snapshots[0];
+				// If only one snapshot exists, try to restore it
+				startIndex = 0;
 			}
 		}
 		else {
@@ -537,20 +615,28 @@ export async function undoLastOperation() {
 
 			if (currentIndex === -1) {
 				// ID not found, reset to latest
-				targetSnapshot = snapshots[0];
-			}
-			else if (currentIndex + 1 < snapshots.length) {
-				// Next older snapshot
-				targetSnapshot = snapshots[currentIndex + 1];
+				startIndex = 0;
 			}
 			else {
-				eda.sys_Message?.showToastMessage('已经是最早的快照了');
-				return;
+				// Next older snapshot
+				startIndex = currentIndex + 1;
+			}
+		}
+
+		// 遍历寻找属于当前 PCB 的快照
+		for (let i = startIndex; i < snapshots.length; i++) {
+			const snap = snapshots[i];
+			// 严格检查 PCB ID
+			if (snap.pcbId === pcbId) {
+				targetSnapshot = snap;
+				break;
 			}
 		}
 
 		if (targetSnapshot) {
-			const success = await restoreSnapshot(targetSnapshot.id, false);
+			// 撤销操作通常不需要二次确认，也不需要弹窗（除非出错）
+			// 这里的 restoreSnapshot 内部会再次检查 ID，但我们已经筛选过了，肯定匹配
+			const success = await restoreSnapshot(targetSnapshot.id, false, false);
 
 			if (success) {
 				const msg = eda.sys_I18n ? eda.sys_I18n.text('已撤销') : 'Undone';
@@ -563,6 +649,10 @@ export async function undoLastOperation() {
 					eda.sys_Message.showToastMessage(`${msg}: ${dispName}`);
 				}
 			}
+		}
+		else {
+			const noSnapMsg = eda.sys_I18n ? eda.sys_I18n.text('没有找到当前PCB的可撤销快照') : 'No undo snapshot found for current PCB';
+			eda.sys_Message?.showToastMessage(noSnapMsg);
 		}
 	}
 	catch (e: any) {

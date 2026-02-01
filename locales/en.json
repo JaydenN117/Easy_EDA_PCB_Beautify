@@ -84,5 +84,12 @@
 	"确定要恢复到此状态吗？当前未保存的更改将丢失。": "Are you sure you want to restore? Current unsaved changes will be lost.",
 	"恢复失败": "Restore Failed",
 	"快照已清除": "Snapshots cleared",
-	"确定要清除所有快照吗？": "Are you sure you want to clear all snapshots?"
+	"确定要清除所有快照吗？": "Are you sure you want to clear all snapshots?",
+	"!!! 严重警告：快照所属PCB与当前PCB不一致 !!!\\n\\n此操作极大概率会导致布线错乱或数据丢失！\\n此操作极大概率会导致布线错乱或数据丢失！\\n此操作极大概率会导致布线错乱或数据丢失！\\n\\n系统会自动尝试备份当前状态，但是否继续？": "!!! SEVERE WARNING: PCB ID MISMATCH !!!\\n\\nThis will likely corrupt your layout!\\nThis will likely corrupt your layout!\\nThis will likely corrupt your layout!\\n\\nSystem will try to backup current state. Continue?",
+	"!!! 危险操作确认 !!!": "!!! DANGER CONFIRMATION !!!",
+	"PCB ID 不匹配": "PCB ID Mismatch",
+	"强制恢复前备份": "Backup (Pre-Force Restore)",
+	"确定要恢复到此快照状态吗？当前画布将被覆盖。": "Restore this snapshot? Current canvas will be overwritten.",
+	"快照所属PCB与当前PCB不一致，强制恢复可能导致未知的错误，是否继续？": "Current PCB does not match snapshot PCB. Continue restoration?",
+	"没有找到当前PCB的可撤销快照": "No undo snapshot found for current PCB"
 }
