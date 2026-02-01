@@ -495,6 +495,11 @@
             <span style="font-size: 14px;"></span> 
             <span data-i18n="设置即时生效">设置即时生效</span>
         </div>
+        <div style="display: flex; align-items: center; gap: 10px; color: var(--text-hint); font-size: 12px;">
+            <span><span data-i18n="作者">作者</span>: <span style="font-weight: 500; color: var(--text-secondary);">m-RNA</span></span>
+            <span style="color: #ddd;">|</span>
+            <a href="javascript:void(0)" onclick="openUrl('https://github.com/m-RNA/Easy_EDA_PCB_Beautify')" style="color: var(--primary); text-decoration: none; border-bottom: 1px dashed var(--primary);">GitHub</a>
+        </div>
         <button type="button" class="btn btn-white" id="closeBtn" onclick="tryClose()" data-i18n="关闭" style="min-width: 120px;">关闭</button>
     </div>
     
@@ -532,6 +537,15 @@
             }
             else {
                 console.log('Close requested (API missing)');
+            }
+        }
+
+        function openUrl(url) {
+            const api = API || getEda();
+            if (api && api.sys_Window && typeof api.sys_Window.openUrl === 'function') {
+                api.sys_Window.openUrl(url);
+            } else {
+                window.open(url, '_blank');
             }
         }
 
