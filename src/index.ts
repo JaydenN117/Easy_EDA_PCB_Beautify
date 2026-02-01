@@ -12,7 +12,7 @@
  */
 
 import { beautifyRouting as beautifyTask } from './lib/beautify';
-import { logError, logInfo, logWarn } from './lib/logger';
+import { debugLog, debugWarn, logError } from './lib/logger';
 import { getDefaultSettings, getSettings } from './lib/settings';
 import { undoLastOperation as undoTask } from './lib/snapshot';
 import * as Snapshot from './lib/snapshot';
@@ -70,14 +70,14 @@ export function activate(_status?: 'onStartupFinished', _arg?: string): void {
 					},
 				],
 			});
-			logInfo('Header menus registered successfully', 'PCB');
+			debugLog('Header menus registered successfully', 'PCB');
 		}
 		else {
-			logWarn('sys_HeaderMenu not available', 'PCB');
+			debugWarn('sys_HeaderMenu not available', 'PCB');
 		}
 	}
 	catch (e: any) {
-		logWarn(`Failed to register header menus dynamically: ${e.message || e}`, 'PCB');
+		debugWarn(`Failed to register header menus dynamically: ${e.message || e}`, 'PCB');
 	}
 }
 

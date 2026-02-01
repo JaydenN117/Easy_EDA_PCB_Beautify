@@ -11,7 +11,7 @@
 	"license": "Apache-2.0",
 	"repository": {
 		"type": "github",
-		"url": "https://github.com/m-RNA/Easy_EDA_PCB_Beautify.git"
+		"url": "https://github.com/m-RNA/Easy_EDA_PCB_Beautify"
 	},
 	"categories": "PCB",
 	"keywords": [
@@ -29,7 +29,7 @@
 	"images": {
 		"logo": "./images/logo.png"
 	},
-	"homepage": "https://github.com/m-RNA/Easy_EDA_PCB_Beautify",
+	"homepage": "https://github.com/m-RNA/Easy_EDA_PCB_Beautify/blob/main/README.md",
 	"bugs": "https://github.com/m-RNA/Easy_EDA_PCB_Beautify/issues",
 	"activationEvents": {
 		"onStartupFinished": true

@@ -64,7 +64,8 @@ export function logError(message: string, scope?: string): void {
 
 /**
  * 输出调试日志 (用于开发调试)
- * @param messages - 要输出的消息
+ * @param messageOrFirst - 日志消息或第一个参数
+ * @param messages - 其他可选参数
  */
 export function debugLog(messageOrFirst: any, ...messages: any[]): void {
 	if (!getCachedSettings().debug)

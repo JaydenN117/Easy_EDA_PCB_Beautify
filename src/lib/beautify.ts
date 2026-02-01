@@ -472,7 +472,7 @@ export async function beautifyRouting(scope: 'selected' | 'all' = 'selected') {
 														debugLog(`Merged short segment on ${net} at index ${i - 1}, segLen: ${segLen.toFixed(2)}, new radius usage: ${t_actualD.toFixed(2)}`);
 													}
 													else {
-														logInfo(`Merge calc failed on ${net}. actualD too small (${t_actualD})`);
+														debugLog(`Merge calc failed on ${net}. actualD too small (${t_actualD})`);
 													}
 												}
 												else {
@@ -543,7 +543,6 @@ export async function beautifyRouting(scope: 'selected' | 'all' = 'selected') {
 								else {
 									clampedCorners++;
 									isSkippedDueToClamp = true;
-									// 使用 debugWarn 避免给用户不可靠的感觉
 									debugWarn(`Corner at (${pCorner.x.toFixed(2)}, ${pCorner.y.toFixed(2)}) [Net: ${net || 'No Net'}] skipped. Segment too short for radius. Req: ${d.toFixed(2)}, Act: ${actualD.toFixed(2)}`);
 								}
 							}
@@ -607,7 +606,7 @@ export async function beautifyRouting(scope: 'selected' | 'all' = 'selected') {
 
 								// Log failure
 								if (!isSkippedDueToClamp) {
-									logInfo(`Corner at (${pCorner.x.toFixed(2)}, ${pCorner.y.toFixed(2)}) skipped. Angle or Radius invalid. actualD=${actualD.toFixed(3)}`);
+									debugLog(`Corner at (${pCorner.x.toFixed(2)}, ${pCorner.y.toFixed(2)}) skipped. Angle or Radius invalid. net=${net || 'No Net'} actualD=${actualD.toFixed(3)}`);
 								}
 							}
 						}
@@ -779,11 +778,6 @@ export async function beautifyRouting(scope: 'selected' | 'all' = 'selected') {
 				}
 			}
 		}
-
-		// 批量保存到撤销栈
-		// if (allCreatedIds.length > 0 || allDeletedPrimitives.length > 0) {
-		// ... replaced by snapshot system
-		// }
 
 		if (
 			eda.sys_Message
