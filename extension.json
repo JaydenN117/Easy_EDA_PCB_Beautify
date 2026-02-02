@@ -1,9 +1,9 @@
 {
 	"name": "eext-pcb-beautify",
 	"uuid": "3911cc55444d4833b5762da1521fe616",
-	"displayName": "美化PCB",
+	"displayName": "熔化PCB-美化PCB（融化）",
 	"description": "一键拐角圆弧美化 线宽突变处贝塞尔美化 多步撤销 快照 合并短线段 强制圆弧生成等高级美化功能",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"publisher": "m-RNA",
 	"engines": {
 		"eda": "^3.0.0"
@@ -15,11 +15,13 @@
 	},
 	"categories": "PCB",
 	"keywords": [
-		"Beautify",
+		"熔化",
+		"Melt",
 		"美化",
-		"PCB",
 		"圆滑布线",
 		"线宽过渡",
+		"PCB",
+		"融化",
 		"Smooth",
 		"WidthTransition",
 		"Routing",
@@ -29,8 +31,8 @@
 	"images": {
 		"logo": "./images/logo.png"
 	},
-	"homepage": "https://github.com/m-RNA/Easy_EDA_PCB_Beautify/blob/main/README.md",
-	"bugs": "https://github.com/m-RNA/Easy_EDA_PCB_Beautify/issues",
+	"homepage": "https://ext.lceda.cn/item/mrna/eext-pcb-beautify",
+	"bugs": "https://ext.lceda.cn/item/mrna/eext-pcb-beautify",
 	"activationEvents": {
 		"onStartupFinished": true
 	},
