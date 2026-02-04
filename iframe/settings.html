@@ -961,6 +961,15 @@
 
                 if (pid && pid !== currentPcbId) {
                     currentPcbId = pid;
+                    
+                    // 自动刷新动画
+                    const btn = document.getElementById('refreshSnapshotBtn');
+                    const icon = btn ? btn.querySelector('.refresh-icon') : null;
+                    if (icon) {
+                        icon.classList.add('rotating');
+                        setTimeout(() => icon.classList.remove('rotating'), 600);
+                    }
+
                     refreshSnapshots(); // PCB 改变，刷新列表
                 }
             } catch (e) { /* ignore */ }
@@ -1155,10 +1164,10 @@
                 await refreshSnapshots();
             }
             finally {
-                // 至少转 500ms (正好一圈)
+                // 至少转 600ms (正好一圈)
                 setTimeout(() => {
                     if (icon) icon.classList.remove('rotating');
-                }, 500);
+                }, 600);
             }
         };
 
