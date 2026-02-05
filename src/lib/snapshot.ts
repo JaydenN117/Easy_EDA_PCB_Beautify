@@ -3,13 +3,13 @@ import { debugLog, logError, logWarn } from './logger';
 import { isClose } from './math';
 
 const SNAPSHOT_STORAGE_KEY_V2 = 'jlc_eda_beautify_snapshots_v2';
-// 内存缓存 key，挂载在 eda 对象上
+// In-memory cache key, mounted on the eda object
 const CACHE_KEY_V2 = '_jlc_beautify_snapshots_cache_v2';
-// 回调 key
+// Callback key
 const CALLBACK_KEY = '_jlc_beautify_snapshot_callback';
-// 记录上一次撤销恢复到的快照ID
+// Last undo restored snapshot ID
 const LAST_RESTORED_KEY = '_jlc_beautify_last_restored_id';
-// 撤销锁 Key
+// Undo lock key
 const UNDO_LOCK_KEY = '_jlc_beautify_undo_lock';
 
 export function getLastRestoredId(): number | null {
@@ -29,18 +29,18 @@ function setUndoing(val: boolean) {
 }
 
 /**
- * 注册快照变化回调
- * 注意：回调存储在 eda 全局对象上，以支持跨上下文调用
+ * Register snapshot change callback.
+ * Note: Callback is stored on the eda global object to support cross-context invocation.
  */
 export function registerSnapshotChangeCallback(cb: () => void) {
 	(eda as any)[CALLBACK_KEY] = cb;
 }
 
 /**
- * 通知设置界面快照列表已变化
+ * Notify the settings UI that the snapshot list has changed
  */
 function notifySnapshotChange() {
-	// 优先使用注册到 eda 全局对象的回调
+	// Prefer the callback registered on the eda global object
 	const registeredCallback = (eda as any)[CALLBACK_KEY];
 	if (typeof registeredCallback === 'function') {
 		try {
@@ -56,7 +56,7 @@ export interface RoutingSnapshot {
 	id: number;
 	name: string;
 	timestamp: number;
-	pcbId?: string; // 仍然保留，以备不时之需
+	pcbId?: string; // Kept for safety
 	lines: any[];
 	arcs: any[];
 	isManual?: boolean;
@@ -74,21 +74,21 @@ interface SnapshotStorageV2 {
 export const SNAPSHOT_LIMIT = 20;
 
 /**
- * 获取目前的快照存储结构 (完整)
+ * Get the current snapshot storage structure (complete)
  */
 async function getStorageData(): Promise<SnapshotStorageV2> {
-	// 1. 尝试从全局缓存读取
+	// 1. Try reading from global cache
 	const cached = (eda as any)[CACHE_KEY_V2] as SnapshotStorageV2;
 	if (cached && typeof cached === 'object') {
 		return cached;
 	}
 
-	// 2. 从 storage 读取
+	// 2. Read from storage
 	try {
 		const stored = await eda.sys_Storage.getExtensionUserConfig(SNAPSHOT_STORAGE_KEY_V2);
 		if (stored) {
 			const data = JSON.parse(stored);
-			// 更新 cache
+			// Update cache
 			(eda as any)[CACHE_KEY_V2] = data;
 			return data;
 		}
@@ -97,14 +97,14 @@ async function getStorageData(): Promise<SnapshotStorageV2> {
 		logError(`Failed to load snapshots v2: ${e.message || e}`);
 	}
 
-	// 3. 返回空对象
+	// 3. Return empty object
 	const empty = {};
 	(eda as any)[CACHE_KEY_V2] = empty;
 	return empty;
 }
 
 /**
- * 保存完整的快照存储
+ * Save complete snapshot storage
  */
 async function saveStorageData(data: SnapshotStorageV2) {
 	try {
@@ -119,7 +119,7 @@ async function saveStorageData(data: SnapshotStorageV2) {
 }
 
 /**
- * 获取指定 PCB 的快照列表
+ * Get snapshot list for a specific PCB
  * @param pcbId PCB UUID
  * @param type 'manual' | 'auto' | undefined (undefined returns all flattened)
  */
@@ -135,11 +135,11 @@ export async function getSnapshots(pcbId: string, type?: 'manual' | 'auto'): Pro
 	if (type === 'auto')
 		return [...pcbData.auto];
 
-	// 如果没有指定类型，则合并（通常也不推荐这么用，除非是为了兼容旧接口）
+	// If no type specified, merge (not recommended unless for legacy interface compatibility)
 	return [...(pcbData.manual || []), ...(pcbData.auto || [])].sort((a, b) => b.timestamp - a.timestamp);
 }
 
-// 辅助函数：比较 Line 是否一致
+// Helper: compare whether two Lines are identical
 function isLineEqual(a: any, b: any) {
 	if (a.id !== b.id)
 		return false; // ID must match
@@ -158,7 +158,7 @@ function isLineEqual(a: any, b: any) {
 	return true;
 }
 
-// 辅助函数：比较 Arc 是否一致
+// Helper: compare whether two Arcs are identical
 function isArcEqual(a: any, b: any) {
 	if (a.id !== b.id)
 		return false; // ID must match
@@ -179,7 +179,7 @@ function isArcEqual(a: any, b: any) {
 	return true;
 }
 
-// 辅助函数：比较两个快照的数据是否完全一致 (忽略顺序)
+// Helper: compare whether two snapshots' data is completely identical (order-independent)
 function isSnapshotDataIdentical(snapshotA: RoutingSnapshot, snapshotB: RoutingSnapshot): boolean {
 	if (snapshotA.lines.length !== snapshotB.lines.length)
 		return false;
@@ -208,7 +208,7 @@ function isSnapshotDataIdentical(snapshotA: RoutingSnapshot, snapshotB: RoutingS
 	return true;
 }
 
-// 辅助函数：提取图元数据
+// Helper: extract primitive data
 function extractPrimitiveData(items: any[], type: 'line' | 'arc', pcbId: string) {
 	return items.map((p) => {
 		const base = {
@@ -261,7 +261,7 @@ function extractPrimitiveData(items: any[], type: 'line' | 'arc', pcbId: string)
 }
 
 /**
- * 辅助：获取当前 PCB 信息
+ * Helper: safely get current PCB info
  */
 export async function getCurrentPcbInfoSafe() {
 	try {
@@ -279,17 +279,17 @@ export async function getCurrentPcbInfoSafe() {
 }
 
 /**
- * 创建当前布线状态的快照
- * @param name 快照名称
- * @param isManual 是否手动快照 (如果是手动，将存入 manual 表)
+ * Create a snapshot of the current routing state
+ * @param name Snapshot name
+ * @param isManual Whether this is a manual snapshot (if true, stored in manual list)
  */
 export async function createSnapshot(name: string = 'Auto Save', isManual: boolean = false): Promise<RoutingSnapshot | null> {
 	try {
-		// 暂存撤销ID，不在此时立即重置，而是在后续逻辑中用于分支截断
+		// Temporarily store the undo ID; don't reset now, will be used later for branch truncation
 		const lastRestoredId = getLastRestoredId();
 
 		if (eda.sys_LoadingAndProgressBar) {
-			// 如果已经是手动触发的(有进度条)，就不再显示进度提示，避免闪烁
+			// If manually triggered (already has a progress bar), don't show progress tip to avoid flicker
 		}
 
 		const currentPcb = await getCurrentPcbInfoSafe();
@@ -301,13 +301,13 @@ export async function createSnapshot(name: string = 'Auto Save', isManual: boole
 		const pcbId = currentPcb.id;
 		const pcbName = currentPcb.name;
 
-		// 自动附加 PCB 名称前缀
+		// Auto-prepend PCB name prefix
 		let finalName = name;
 		if (pcbName) {
-			finalName = `[${pcbName}] ${name}`; // 保持原有命名习惯
+			finalName = `[${pcbName}] ${name}`; // Maintain existing naming convention
 		}
 
-		// 获取所有导线、圆弧
+		// Get all tracks and arcs
 		const lines = await eda.pcb_PrimitiveLine.getAll();
 		const arcs = await eda.pcb_PrimitiveArc.getAll();
 
@@ -321,26 +321,26 @@ export async function createSnapshot(name: string = 'Auto Save', isManual: boole
 			arcs: extractPrimitiveData(arcs || [], 'arc', pcbId),
 		};
 
-		// 获取现有数据
+		// Get existing data
 		const data = await getStorageData();
 		if (!data[pcbId]) {
 			data[pcbId] = { manual: [], auto: [] };
 		}
 		const pcbStore = data[pcbId];
 
-		// 历史分支管理：如果当前处于撤销状态，新操作将截断“未来”
+		// History branch management: if currently in undo state, new operation truncates "future"
 		if (lastRestoredId !== null) {
 			const idx = pcbStore.auto.findIndex(s => s.id === lastRestoredId);
 			if (idx > 0) {
-				// 删除比当前恢复点更新的所有自动快照
+				// Delete all auto snapshots newer than the current restore point
 				pcbStore.auto.splice(0, idx);
 				debugLog(`Snapshot history truncated: removed ${idx} newer items`, 'Snapshot');
 			}
-			// 重置指针
+			// Reset pointer
 			setLastRestoredId(null);
 		}
 
-		// 决定存入哪个列表
+		// Determine which list to store in
 		const targetList = isManual ? pcbStore.manual : pcbStore.auto;
 
 		// Check duplicate against the latest one in the target list
@@ -361,7 +361,7 @@ export async function createSnapshot(name: string = 'Auto Save', isManual: boole
 			}
 		}
 
-		// 插入头部
+		// Insert at head
 		targetList.unshift(snapshot);
 
 		// Limit size
@@ -369,10 +369,10 @@ export async function createSnapshot(name: string = 'Auto Save', isManual: boole
 			targetList.length = SNAPSHOT_LIMIT; // Truncate
 		}
 
-		// 保存
+		// Save
 		await saveStorageData(data);
 
-		// 通知设置界面刷新
+		// Notify settings UI to refresh
 		notifySnapshotChange();
 
 		return snapshot;
@@ -380,7 +380,7 @@ export async function createSnapshot(name: string = 'Auto Save', isManual: boole
 	catch (e: any) {
 		logError(`Create failed: ${e.message || e}`, 'Snapshot');
 		if (eda.sys_Message)
-			eda.sys_Message.showToastMessage(`创建快照失败: ${e.message}`);
+			eda.sys_Message.showToastMessage(`Snapshot creation failed: ${e.message}`);
 		return null;
 	}
 	finally {
@@ -391,16 +391,15 @@ export async function createSnapshot(name: string = 'Auto Save', isManual: boole
 }
 
 /**
- * 恢复快照
+ * Restore a snapshot
  */
 export async function restoreSnapshot(snapshotId: number, showToast: boolean = true, requireConfirmation: boolean = false): Promise<boolean> {
 	try {
-		// 因为 restoreSnapshot 只给 ID，我们需要遍历查找
+		// Since restoreSnapshot only receives an ID, we need to search for it
 		const data = await getStorageData();
 		let snapshot: RoutingSnapshot | undefined;
-		// let foundInPcbId = ''; // unused
 
-		// 暴力查找 ID
+		// Brute-force search for ID
 		for (const store of Object.values(data)) {
 			snapshot = store.manual.find(s => s.id === snapshotId) || store.auto.find(s => s.id === snapshotId);
 			if (snapshot) {
@@ -410,20 +409,20 @@ export async function restoreSnapshot(snapshotId: number, showToast: boolean = t
 
 		if (!snapshot) {
 			logError(`Snapshot not found with id: ${snapshotId}`, 'Snapshot');
-			eda.sys_Message?.showToastMessage('未找到指定快照');
+			eda.sys_Message?.showToastMessage('Snapshot not found');
 			return false;
 		}
 
 		const currentPcb = await getCurrentPcbInfoSafe();
 		const currentPcbId = currentPcb?.id || 'unknown';
 
-		// 1. 检查 PCB ID
+		// 1. Check PCB ID
 		let confirmed = !requireConfirmation;
 		let isMismatch = false;
 
 		if (snapshot.pcbId && snapshot.pcbId !== currentPcbId) {
 			isMismatch = true;
-			// 如果 ID 不匹配，显示严重警告
+			// If ID doesn't match, show severe warning
 			if (eda.sys_Dialog && typeof eda.sys_Dialog.showConfirmationMessage === 'function') {
 				confirmed = await new Promise<boolean>((resolve) => {
 					eda.sys_Dialog.showConfirmationMessage(
@@ -467,7 +466,7 @@ export async function restoreSnapshot(snapshotId: number, showToast: boolean = t
 			eda.sys_LoadingAndProgressBar.showLoading();
 		}
 
-		// 恢复逻辑 (Diff)
+		// Restore logic (Diff-based)
 		const currentLines = extractPrimitiveData(await eda.pcb_PrimitiveLine.getAll() || [], 'line', currentPcbId);
 		const currentArcs = extractPrimitiveData(await eda.pcb_PrimitiveArc.getAll() || [], 'arc', currentPcbId);
 
@@ -536,7 +535,7 @@ export async function restoreSnapshot(snapshotId: number, showToast: boolean = t
 		}
 
 		if (showToast && eda.sys_Message) {
-			eda.sys_Message.showToastMessage(`恢复成功 (L:${linesToCreate.length - linesToDelete.length}, A:${arcsToCreate.length - arcsToDelete.length})`);
+			eda.sys_Message.showToastMessage(`Restored successfully (L:${linesToCreate.length - linesToDelete.length}, A:${arcsToCreate.length - arcsToDelete.length})`);
 		}
 
 		setLastRestoredId(snapshot.id);
@@ -546,7 +545,7 @@ export async function restoreSnapshot(snapshotId: number, showToast: boolean = t
 	catch (e: any) {
 		logError(`Restore failed: ${e.message || e}`, 'Snapshot');
 		if (eda.sys_Message)
-			eda.sys_Message.showToastMessage(`恢复快照失败: ${e.message}`);
+			eda.sys_Message.showToastMessage(`Snapshot restore failed: ${e.message}`);
 		return false;
 	}
 	finally {
@@ -556,11 +555,11 @@ export async function restoreSnapshot(snapshotId: number, showToast: boolean = t
 }
 
 /**
- * 删除快照
+ * Delete a snapshot
  */
 export async function deleteSnapshot(snapshotId: number) {
 	const data = await getStorageData();
-	// 全局删除
+	// Global deletion
 	for (const pcbId in data) {
 		data[pcbId].manual = data[pcbId].manual.filter(s => s.id !== snapshotId);
 		data[pcbId].auto = data[pcbId].auto.filter(s => s.id !== snapshotId);
@@ -570,8 +569,8 @@ export async function deleteSnapshot(snapshotId: number) {
 }
 
 /**
- * 清空 (当前 PCB 的手动快照，或全部？)
- * Settings 界面只会请求清空其显示的列表
+ * Clear snapshots (current PCB's manual snapshots)
+ * The settings UI only requests clearing its displayed list
  */
 export async function clearSnapshots() {
 	const currentPcb = await getCurrentPcbInfoSafe();
@@ -587,8 +586,8 @@ export async function clearSnapshots() {
 }
 
 /**
- * 撤销上一次操作 (通过恢复快照)
- * 查找最新的快照并恢复
+ * Undo the last operation (by restoring a snapshot).
+ * Finds the most recent snapshot and restores it.
  */
 export async function undoLastOperation() {
 	if (isUndoing())
@@ -601,14 +600,14 @@ export async function undoLastOperation() {
 	try {
 		const currentPcb = await getCurrentPcbInfoSafe();
 		if (!currentPcb) {
-			eda.sys_Message?.showToastMessage('无效的 PCB 状态');
+			eda.sys_Message?.showToastMessage('Invalid PCB state');
 			return;
 		}
 
 		const data = await getStorageData();
 		const pcbData = data[currentPcb.id];
 
-		// 如果没有自动快照
+		// If no auto snapshots
 		if (!pcbData || !pcbData.auto || pcbData.auto.length === 0) {
 			eda.sys_Message?.showToastMessage(eda.sys_I18n ? eda.sys_I18n.text('没有可撤销的操作') : 'No undo history');
 			return;
@@ -616,7 +615,7 @@ export async function undoLastOperation() {
 
 		const autoSnapshots = pcbData.auto;
 
-		// 寻找目标快照
+		// Find target snapshot
 		let targetSnapshot: RoutingSnapshot | undefined;
 		const lastRestoredId = getLastRestoredId();
 		let startIndex = 0;
@@ -624,12 +623,12 @@ export async function undoLastOperation() {
 		if (lastRestoredId !== null) {
 			const idx = autoSnapshots.findIndex(s => s.id === lastRestoredId);
 			if (idx !== -1) {
-				startIndex = idx + 1; // 找更旧的一个
+				startIndex = idx + 1; // Find the older one
 			}
 		}
 		else {
-			// 如果是第一次撤销，且最新的快照是 "After" 类型的（通常代表当前状态），
-			// 则跳过它，直接撤销到它的前一个状态。
+			// If this is the first undo, and the latest snapshot is an "After" type (typically representing current state),
+			// skip it and undo to its previous state.
 			if (autoSnapshots.length > 0 && autoSnapshots[0].name && /\sAfter$/.test(autoSnapshots[0].name)) {
 				startIndex = 1;
 			}
@@ -656,7 +655,7 @@ export async function undoLastOperation() {
 	}
 	catch (e: any) {
 		if (eda.sys_Dialog)
-			eda.sys_Dialog.showInformationMessage(`撤销失败: ${e.message}`, 'Undo Error');
+			eda.sys_Dialog.showInformationMessage(`Undo failed: ${e.message}`, 'Undo Error');
 	}
 	finally {
 		setUndoing(false);

@@ -24,7 +24,7 @@ export async function addTeardrops() {
 		// ignore
 	}
 
-	// 创建操作前快照
+	// Create pre-operation snapshot
 	try {
 		await createSnapshot(`Teardrop ${scopeLabel} Before`);
 	}
@@ -33,13 +33,13 @@ export async function addTeardrops() {
 	}
 
 	try {
-		await removeExistingTeardrops(); // 先清除
+		await removeExistingTeardrops(); // Remove existing first
 
 		let pins: any[] = [];
 		const selected = await eda.pcb_SelectControl.getAllSelectedPrimitives();
 
 		if (selected && Array.isArray(selected) && selected.length > 0) {
-			// 处理选中
+			// Process selected
 			let primitives: any[] = [];
 			if (typeof selected[0] === 'string') {
 				for (const id of selected as unknown as string[]) {
@@ -64,14 +64,14 @@ export async function addTeardrops() {
 			);
 		}
 
-		// 如果没有有效的选中对象，则处理全体
+		// If no valid selection, process entire board
 		if (pins.length === 0) {
-			debugLog('未选中对象，获取全板焊盘和过孔', 'Teardrop');
-			// 获取全板焊盘和过孔的ID，然后逐个获取对象
+			debugLog('No objects selected, fetching all board pads and vias', 'Teardrop');
+			// Get all board pad and via IDs, then fetch objects individually
 			const padIds = await eda.pcb_PrimitivePad.getAllPrimitiveId();
 			const viaIds = await eda.pcb_PrimitiveVia.getAllPrimitiveId();
 
-			debugLog(`找到 ${padIds.length} 个焊盘, ${viaIds.length} 个过孔`, 'Teardrop');
+			debugLog(`Found ${padIds.length} pads, ${viaIds.length} vias`, 'Teardrop');
 
 			for (const id of padIds) {
 				const pad = await eda.pcb_PrimitivePad.get(id);
@@ -85,7 +85,7 @@ export async function addTeardrops() {
 			}
 		}
 
-		debugLog(`开始处理 ${pins.length} 个焊盘/过孔`, 'Teardrop');
+		debugLog(`Processing ${pins.length} pads/vias`, 'Teardrop');
 
 		let processedCount = 0;
 		for (const pin of pins) {
@@ -99,7 +99,7 @@ export async function addTeardrops() {
 
 			processedCount++;
 
-			// 获取连接到此焊盘的导线（遍历所有层）
+			// Get tracks connected to this pad (across all layers)
 			const allTracks = await eda.pcb_PrimitiveLine.getAll(net);
 			const connectedTracks = allTracks.filter(
 				(p: any) =>
@@ -118,16 +118,16 @@ export async function addTeardrops() {
 			}
 		}
 
-		debugLog(`处理完成，共处理 ${processedCount} 个焊盘/过孔`, 'Teardrop');
+		debugLog(`Processing complete, processed ${processedCount} pads/vias`, 'Teardrop');
 
 		if (
 			eda.sys_Message
 			&& typeof eda.sys_Message.showToastMessage === 'function'
 		) {
-			eda.sys_Message.showToastMessage(eda.sys_I18n.text(`泪滴处理完成 (处理了${processedCount}个)`));
+			eda.sys_Message.showToastMessage(eda.sys_I18n.text(`Teardrop processing complete (processed ${processedCount})`));
 		}
 
-		// 创建操作后快照
+		// Create post-operation snapshot
 		try {
 			await createSnapshot(`Teardrop ${scopeLabel} After`);
 		}
@@ -190,7 +190,7 @@ async function createTeardropForTrack(pin: any, track: any, settings: any) {
 	const py = pin.getState_Y();
 	const trackWidth = track.getState_LineWidth();
 
-	// 确定哪一端连接到焊盘
+	// Determine which end connects to the pad
 	const isStart
 		= dist(
 			{ x: track.getState_StartX(), y: track.getState_StartY() },
@@ -201,18 +201,18 @@ async function createTeardropForTrack(pin: any, track: any, settings: any) {
 		: { x: track.getState_StartX(), y: track.getState_StartY() };
 	const pNear = { x: px, y: py };
 
-	// 向量方向
+	// Direction vector
 	const dx = pFar.x - pNear.x;
 	const dy = pFar.y - pNear.y;
 	const d = Math.sqrt(dx * dx + dy * dy);
 	const ux = dx / d;
 	const uy = dy / d;
 
-	// 极坐标旋转 90 度
+	// Perpendicular vector (90 degree rotation)
 	const vx = -uy;
 	const vy = ux;
 
-	// 泪滴长度和宽度 (基于 settings)
+	// Teardrop length and width (based on settings)
 	const length = trackWidth * 3 * settings.teardropSize;
 	const widthAtPad = trackWidth * 2 * settings.teardropSize;
 
@@ -226,22 +226,22 @@ async function createTeardropForTrack(pin: any, track: any, settings: any) {
 		y: pNear.y - (vy * widthAtPad) / 2,
 	};
 
-	// 生成贝塞尔曲线点集，模拟泪滴的平滑曲线
+	// Generate Bezier curve point set to simulate smooth teardrop curves
 	const polyPoints: any[] = [];
 
-	// 连接到 P1 -> P_Track -> P2 -> P_Near -> P1
-	// 使用贝塞尔插值 P1 -> P_Track 和 P2 -> P_Track
+	// Connect P1 -> P_Track -> P2 -> P_Near -> P1
+	// Use Bezier interpolation for P1 -> P_Track and P2 -> P_Track
 	const steps = 10;
 
-	// P1 到 P_Track 的曲线
-	const cp1 = lerp(pEdge1, pTrack, 0.5); // 控制点1
-	const cp2 = lerp(pEdge1, pTrack, 0.8); // 控制点2
+	// Curve from P1 to P_Track
+	const cp1 = lerp(pEdge1, pTrack, 0.5); // Control point 1
+	const cp2 = lerp(pEdge1, pTrack, 0.8); // Control point 2
 	for (let i = 0; i <= steps; i++) {
 		const pt = cubicBezier(pEdge1, cp1, cp2, pTrack, i / steps);
 		polyPoints.push(pt.x, pt.y);
 	}
 
-	// P_Track 到 P2 的曲线
+	// Curve from P_Track to P2
 	const cp3 = lerp(pEdge2, pTrack, 0.8);
 	const cp4 = lerp(pEdge2, pTrack, 0.5);
 	for (let i = 0; i <= steps; i++) {

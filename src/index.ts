@@ -1,13 +1,13 @@
 /**
- * 入口文件
+ * Entry file
  *
- * 本文件为默认扩展入口文件，如果你想要配置其它文件作为入口文件，
- * 请修改 `extension.json` 中的 `entry` 字段；
+ * This is the default extension entry file. To use a different entry,
+ * modify the `entry` field in `extension.json`.
  *
- * 请在此处使用 `export`  导出所有你希望在 `headerMenus` 中引用的方法，
- * 方法通过方法名与 `headerMenus` 关联。
+ * Use `export` here to expose all methods referenced in `headerMenus`.
+ * Methods are associated with `headerMenus` by their function name.
  *
- * 如需了解更多开发细节，请阅读：
+ * For more development details, see:
  * https://prodocs.lceda.cn/cn/api/guide/
  */
 
@@ -19,51 +19,51 @@ import * as Snapshot from './lib/snapshot';
 import { addWidthTransitionsAll, addWidthTransitionsSelected } from './lib/widthTransition';
 
 export function activate(_status?: 'onStartupFinished', _arg?: string): void {
-	// 初始化设置（加载到缓存）
+	// Initialize settings (load into cache)
 	getSettings();
 
-	// 将功能挂载到 eda 全局对象，供 settings.html 调用
+	// Mount features onto the eda global object for settings.html to call
 	(eda as any).jlc_eda_beautify_snapshot = Snapshot;
 	(eda as any).jlc_eda_beautify_refreshSettings = getSettings;
 	(eda as any).jlc_eda_beautify_getDefaultSettings = getDefaultSettings;
 
-	// 动态刷新顶部菜单，确保菜单正确显示
+	// Dynamically refresh header menus to ensure they display correctly
 	try {
 		if (eda.sys_HeaderMenu && typeof eda.sys_HeaderMenu.replaceHeaderMenus === 'function') {
 			eda.sys_HeaderMenu.replaceHeaderMenus({
 				pcb: [
 					{
 						id: 'BeautifyPCB',
-						title: eda.sys_I18n ? eda.sys_I18n.text('美化PCB') : '美化PCB',
+						title: eda.sys_I18n ? eda.sys_I18n.text('美化PCB') : 'Beautify PCB',
 						menuItems: [
 							{
 								id: 'BeautifySelected',
-								title: eda.sys_I18n ? eda.sys_I18n.text('圆滑布线（选中）') : '圆滑布线（选中）',
+								title: eda.sys_I18n ? eda.sys_I18n.text('圆滑布线（选中）') : 'Smooth Routing (Selected)',
 								registerFn: 'beautifySelected',
 							},
 							{
 								id: 'BeautifyAll',
-								title: eda.sys_I18n ? eda.sys_I18n.text('圆滑布线（全部）') : '圆滑布线（全部）',
+								title: eda.sys_I18n ? eda.sys_I18n.text('圆滑布线（全部）') : 'Smooth Routing (All)',
 								registerFn: 'beautifyAll',
 							},
 							{
 								id: 'WidthSelected',
-								title: eda.sys_I18n ? eda.sys_I18n.text('过渡线宽（选中）') : '过渡线宽（选中）',
+								title: eda.sys_I18n ? eda.sys_I18n.text('过渡线宽（选中）') : 'Width Transition (Selected)',
 								registerFn: 'widthTransitionSelected',
 							},
 							{
 								id: 'WidthAll',
-								title: eda.sys_I18n ? eda.sys_I18n.text('过渡线宽（全部）') : '过渡线宽（全部）',
+								title: eda.sys_I18n ? eda.sys_I18n.text('过渡线宽（全部）') : 'Width Transition (All)',
 								registerFn: 'widthTransitionAll',
 							},
 							{
 								id: 'Undo',
-								title: eda.sys_I18n ? eda.sys_I18n.text('撤销') : '撤销',
+								title: eda.sys_I18n ? eda.sys_I18n.text('撤销') : 'Undo',
 								registerFn: 'undoOperation',
 							},
 							{
 								id: 'Settings',
-								title: eda.sys_I18n ? eda.sys_I18n.text('设置') : '设置',
+								title: eda.sys_I18n ? eda.sys_I18n.text('设置') : 'Settings',
 								registerFn: 'openSettings',
 							},
 						],
@@ -82,7 +82,7 @@ export function activate(_status?: 'onStartupFinished', _arg?: string): void {
 }
 
 /**
- * 圆滑所选布线
+ * Smooth selected routing
  */
 export async function beautifySelected() {
 	try {
@@ -94,7 +94,7 @@ export async function beautifySelected() {
 }
 
 /**
- * 圆滑所有布线
+ * Smooth all routing
  */
 export async function beautifyAll() {
 	try {
@@ -119,7 +119,7 @@ function handleError(e: any) {
 }
 
 /**
- * 撤销操作
+ * Undo operation
  */
 export async function undoOperation() {
 	try {
@@ -131,7 +131,7 @@ export async function undoOperation() {
 }
 
 /**
- * 线宽过渡 - 所选
+ * Width Transition - Selected
  */
 export async function widthTransitionSelected() {
 	try {
@@ -152,12 +152,12 @@ export async function widthTransitionSelected() {
 }
 
 /**
- * 线宽过渡 - 所有
+ * Width Transition - All
  */
 export async function widthTransitionAll() {
 	try {
 		await addWidthTransitionsAll();
-		eda.sys_Message?.showToastMessage(eda.sys_I18n ? eda.sys_I18n.text('线宽过渡完成') : '线宽过渡完成');
+		eda.sys_Message?.showToastMessage(eda.sys_I18n ? eda.sys_I18n.text('线宽过渡完成') : 'Width transition completed');
 	}
 	catch (e: any) {
 		logError(`Width Transition Error: ${e.message || e}`);
@@ -174,11 +174,11 @@ export async function widthTransitionAll() {
 }
 
 /**
- * 打开设置
+ * Open settings
  */
 export async function openSettings() {
-	// 使用内联框架打开设置窗口
-	// 窗口尺寸：宽度 540px，高度 600px
+	// Open settings window using an iframe
+	// Window size: 540px width, 600px height
 	eda.sys_IFrame.openIFrame('/iframe/settings.html', 540, 600, 'settings');
 }
 
