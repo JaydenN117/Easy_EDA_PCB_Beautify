@@ -1,15 +1,15 @@
 import process from 'node:process';
 import esbuild from 'esbuild';
-// 引用子模块的基础配置
+// Import base config from submodule
 import common from '../pro-api-sdk/config/esbuild.common';
 
 (async () => {
-	// 你可以在这里覆盖子模块的配置
+	// You can override submodule config here
 	const config = {
 		...common,
 		format: 'iife' as const,
 		entryPoints: {
-			index: './src/index', // 确保指向根目录的 src
+			index: './src/index', // Ensure this points to root src directory
 		},
 		footer: {
 			js: ';edaEsbuildExportName',

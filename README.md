@@ -1,97 +1,97 @@
-# 熔化/优化/美化PCB (融化)
+# Beautify/Optimize/Smooth PCB Routing
 
-一键将PCB拐角优化为圆弧，保证阻抗连续性；线宽突变处贝塞尔优化（更好的泪滴）支持多步撤销、快照管理、合并短线段，强制圆弧生成等高级优化功能
+One-click PCB corner optimization to smooth arcs, ensuring impedance continuity; Bezier-based width transitions at width change points (better teardrops). Supports multi-step undo, snapshot management, merge short segments, force arc generation, and other advanced optimization features.
 
-1、拐角美化为圆弧（可二次编辑半径）
+1. Corner beautification to arcs (radius is editable after creation)
 
-![效果预览](./images/preview1.gif)
+![Preview](./images/preview1.gif)
 
-2、突变线宽平滑美化（基于贝塞尔曲线）
+2. Smooth width transitions (based on Bezier curves)
 
-![效果预览](./images/preview2.gif)
+![Preview](./images/preview2.gif)
 
-3、快照管理 & 撤销支持
+3. Snapshot management & undo support
 
-![效果预览](./images/preview3.gif)
+![Preview](./images/preview3.gif)
 
-> ⚠️ 插件开发中，建议操作前备份工程，遇到问题欢迎反馈。
+> :warning: Extension is under active development. Please back up your project before operations. Feedback is welcome if you encounter any issues.
 
-## ✨ 功能
+## Features
 
-| 功能 | 说明 |
+| Feature | Description |
 | ------ | ------ |
-| 圆滑布线 | 折线拐角 → 平滑圆弧，可调节最大半径 |
-| 线宽过渡 | 不同线宽间平滑渐变（更好的泪滴），基于贝塞尔曲线算法 |
-| 快照管理 | 自动/手动快照视图切换，随时安全恢复状态 |
-| 高级控制 | 支持强制小半径圆弧生成、合并短线段等高级策略 (Beta) |
+| Smooth Routing | Converts sharp corners to smooth arcs with adjustable max radius |
+| Width Transition | Smooth gradient between different track widths (better teardrops), based on Bezier curves |
+| Snapshot Management | Auto/manual snapshot view switching, safely restore state at any time |
+| Advanced Controls | Force small-radius arc generation, merge short segments, and other advanced strategies (Beta) |
 
-## 📖 使用
+## Usage
 
-**菜单位置：** 高级 → 美化PCB
+**Menu Location:** Advanced -> Beautify PCB
 
-- **圆滑布线（选中/全部）** - 处理走线拐角(基于圆弧走线美化)
-- **过渡线宽（选中/全部）** - 生成线宽渐变(基于贝塞尔曲线美化)
-- **撤销** - 回退到上一步操作（支持多步撤销）
-- **设置** - 配置半径、过渡参数、管理快照历史等选项
+- **Smooth Routing (Selected/All)** - Process track corners (arc-based beautification)
+- **Width Transition (Selected/All)** - Generate width gradients (Bezier curve-based beautification)
+- **Undo** - Revert to previous operation (supports multi-step undo)
+- **Settings** - Configure radius, transition parameters, manage snapshot history, and more
 
-![效果预览](./images/topMenu.png)
+![Preview](./images/topMenu.png)
 
-![效果预览](./images/setting.png)
+![Preview](./images/setting.png)
 
-可通过 高级 → 扩展管理器 → 已安装扩展 → 美化PCB → 配置 勾选显示在顶部菜单，方便使用
+You can pin this to the top menu via: Advanced -> Extension Manager -> Installed Extensions -> Beautify PCB -> Configure
 
-![效果预览](./images/topMenuConfig.png)
+![Preview](./images/topMenuConfig.png)
 
-## 🚀 参与贡献
+## Contributing
 
-欢迎Fork & PR！开发环境搭建如下：
+Contributions via Fork & PR are welcome! Development environment setup:
 
-### 克隆仓库
+### Clone the repository
 
 ```bash
 git clone --recursive https://github.com/m-RNA/Easy_EDA_PCB_Beautify.git
 cd Easy_EDA_PCB_Beautify
 ```
 
-### 已克隆？拉取子模块
+### Already cloned? Pull submodules
 
 ```bash
 git submodule update --init --recursive
 ```
 
-> ⚠️ **注意：** 子模块已锁定到兼容的特定版本，请勿使用 `--remote` 参数更新，否则可能导致编译失败。
+> :warning: **Note:** Submodules are locked to a specific compatible version. Do not use `--remote` to update them, as this may cause build failures.
 
-### 安装 & 构建
+### Install & Build
 
 ```bash
 npm install
 npm run build
 ```
 
-构建产物：`build/dist/` 目录下的 `.eext` 扩展包
+Build output: `.eext` extension package in the `build/dist/` directory
 
-### 开发注意
+### Development Notes
 
-劳请阅读此文件，不要踩坑： [DEVELOPER_NOTES.md](./DEVELOPER_NOTES.md)
+Please read this file to avoid common pitfalls: [DEVELOPER_NOTES.md](./DEVELOPER_NOTES.md)
 
-## 📁 结构
+## Project Structure
 
 ```txt
 src/
-├── index.ts               # 入口 & 菜单注册
+├── index.ts               # Entry & menu registration
 └── lib/
-    ├── beautify.ts        # 拐角圆滑 (Beautify)
-    ├── widthTransition.ts # 线宽过渡
-    ├── snapshot.ts        # 快照管理
-    ├── math.ts            # 数学工具
-    ├── eda_utils.ts       # EDA 工具
-    ├── logger.ts          # 日志打印
-    └── settings.ts        # 设置读写
+    ├── beautify.ts        # Corner smoothing (Beautify)
+    ├── widthTransition.ts # Width transitions
+    ├── snapshot.ts        # Snapshot management
+    ├── math.ts            # Math utilities
+    ├── eda_utils.ts       # EDA utilities
+    ├── logger.ts          # Log output
+    └── settings.ts        # Settings read/write
 iframe/
-└── settings.html          # 设置界面
-pro-api-sdk/               # Git子模块 (嘉立创专业版扩展API SDK)
+└── settings.html          # Settings UI
+pro-api-sdk/               # Git submodule (JLC EDA Pro Extension API SDK)
 ```
 
-## 📜 License
+## License
 
-这个项目采用 Apache-2.0 许可证，详情见 [【Apache-2.0 许可证】](https://www.apache.org/licenses/LICENSE-2.0.txt)
+This project is licensed under the Apache-2.0 License. See [Apache-2.0 License](https://www.apache.org/licenses/LICENSE-2.0.txt) for details.

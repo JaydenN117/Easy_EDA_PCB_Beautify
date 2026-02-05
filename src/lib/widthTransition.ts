@@ -1,7 +1,7 @@
 /**
- * 线宽过渡功能
- * 在同一网络的不同线宽导线之间添加平滑过渡
- * 使用三次贝塞尔曲线实现平滑的线宽渐变
+ * Width Transition Feature
+ * Adds smooth transitions between tracks of different widths on the same net.
+ * Uses cubic Bezier curves for smooth width gradients.
  */
 
 import { getSafeSelectedTracks } from './eda_utils';
@@ -10,12 +10,12 @@ import { dist, isClose, smootherStep } from './math';
 import { getSettings } from './settings';
 import { createSnapshot } from './snapshot';
 
-// 存储创建的过渡元素ID和位置信息
+// Store created transition element IDs and position info
 const TRANSITION_STORAGE_KEY = 'width_transition_data';
 
 interface TransitionRecord {
-	point: string; // 坐标Key
-	ids: string[]; // 对应的图元ID列表
+	point: string; // Coordinate key
+	ids: string[]; // Corresponding primitive ID list
 }
 
 interface TransitionData {
@@ -23,7 +23,7 @@ interface TransitionData {
 }
 
 /**
- * 获取已保存的过渡数据
+ * Get saved transition data
  */
 async function getSavedTransitionData(): Promise<TransitionData> {
 	try {
@@ -36,46 +36,46 @@ async function getSavedTransitionData(): Promise<TransitionData> {
 		}
 	}
 	catch {
-		// 忽略读取错误
+		// Ignore read errors
 	}
 	return { records: [] };
 }
 
 /**
- * 保存过渡数据
+ * Save transition data
  */
 async function saveTransitionData(data: TransitionData): Promise<void> {
 	try {
 		await eda.sys_Storage.setExtensionUserConfig(TRANSITION_STORAGE_KEY, JSON.stringify(data));
 	}
 	catch {
-		// 忽略存储失败
+		// Ignore storage failures
 	}
 }
 
 /**
- * 添加线宽过渡 - 处理选中的线段（菜单调用）
+ * Add width transitions - process selected tracks (menu call)
  */
 export async function addWidthTransitionsSelected() {
 	const settings = await getSettings();
 
-	// 提前显示进度条
+	// Show progress bar early
 	if (eda.sys_LoadingAndProgressBar?.showLoading) {
 		eda.sys_LoadingAndProgressBar.showLoading();
 	}
 
 	try {
-		// 获取选中的图元 ID
+		// Get selected primitive IDs
 		const allSelectedIds = await eda.pcb_SelectControl.getAllSelectedPrimitives_PrimitiveId();
 		if (!allSelectedIds || allSelectedIds.length === 0) {
 			eda.sys_Message?.showToastMessage(eda.sys_I18n.text('请先选择要处理的导线'));
-			return; // finally会处理进度条
+			return; // finally will handle progress bar
 		}
 
-		// 读取已保存的过渡数据
+		// Read saved transition data
 		const savedData = await getSavedTransitionData();
 
-		// 创建快照 (Undo 支持)
+		// Create snapshot (Undo support)
 		try {
 			await createSnapshot('Width (Selected) Before');
 		}
@@ -84,7 +84,7 @@ export async function addWidthTransitionsSelected() {
 		}
 
 		try {
-			// 使用安全获取函数处理混合选中
+			// Use safe retrieval function for mixed selections
 			const selectedTracks = await getSafeSelectedTracks(allSelectedIds);
 
 			if (selectedTracks.length === 0) {
@@ -94,14 +94,14 @@ export async function addWidthTransitionsSelected() {
 
 			const result = await processWidthTransitions(selectedTracks, savedData, settings);
 
-			// 保存数据
+			// Save data
 			await saveTransitionData(result.data);
 
 			eda.sys_Message?.showToastMessage(
-				eda.sys_I18n.text(`线宽过渡完成，处理了 ${result.count} 个连接点`),
+				eda.sys_I18n.text(`Width transition completed, processed ${result.count} connection points`),
 			);
 
-			// 保存操作后的快照
+			// Save post-operation snapshot
 			try {
 				await createSnapshot('Width (Selected) After');
 			}
@@ -120,13 +120,13 @@ export async function addWidthTransitionsSelected() {
 }
 
 /**
- * 添加线宽过渡 - 处理所有线段（熔化时自动调用）
- * @param createBackup 是否创建快照 (如果是 Beautify 调用，通常已经创建了快照，这里可以选择 false)
+ * Add width transitions - process all tracks (auto-called during beautify)
+ * @param createBackup Whether to create a snapshot (if called from Beautify, snapshot is usually already created)
  */
 export async function addWidthTransitionsAll(createBackup: boolean = true) {
 	const settings = await getSettings();
 
-	// 读取已保存的过渡数据
+	// Read saved transition data
 	const savedData = await getSavedTransitionData();
 
 	if (eda.sys_LoadingAndProgressBar?.showLoading) {
@@ -143,7 +143,7 @@ export async function addWidthTransitionsAll(createBackup: boolean = true) {
 	}
 
 	try {
-		// 获取所有导线
+		// Get all tracks
 		const allTracks = await eda.pcb_PrimitiveLine.getAll();
 		if (!allTracks || allTracks.length === 0) {
 			return;
@@ -151,12 +151,12 @@ export async function addWidthTransitionsAll(createBackup: boolean = true) {
 
 		const result = await processWidthTransitions(allTracks, savedData, settings);
 
-		// 保存数据
+		// Save data
 		await saveTransitionData(result.data);
 
-		debugLog(`自动过渡完成，处理了 ${result.count} 个连接点`, 'Transitions');
+		debugLog(`Auto transition complete, processed ${result.count} connection points`, 'Transitions');
 
-		// 如果独立运行，保存操作后的快照
+		// If running independently, save post-operation snapshot
 		if (createBackup) {
 			try {
 				await createSnapshot('Width (All) After');
@@ -175,16 +175,16 @@ export async function addWidthTransitionsAll(createBackup: boolean = true) {
 }
 
 /**
- * 处理线宽过渡的核心逻辑
+ * Core logic for processing width transitions
  */
 async function processWidthTransitions(
 	tracks: any[],
 	savedData: TransitionData,
 	settings: any,
 ): Promise<{ data: TransitionData; count: number }> {
-	debugLog(`获取到 ${tracks.length} 条导线`, 'Transitions');
+	debugLog(`Got ${tracks.length} tracks`, 'Transitions');
 
-	// 按网络和层分组
+	// Group by net and layer
 	const netLayerMap = new Map<string, any[]>();
 
 	for (const track of tracks) {
@@ -199,9 +199,9 @@ async function processWidthTransitions(
 		netLayerMap.get(groupKey)!.push(track);
 	}
 
-	debugLog(`共 ${netLayerMap.size} 个分组`, 'Transitions');
+	debugLog(`Total ${netLayerMap.size} groups`, 'Transitions');
 
-	// 构建记录映射方便查找
+	// Build record map for quick lookups
 	const recordsMap = new Map<string, TransitionRecord>();
 	if (savedData.records) {
 		savedData.records.forEach(r => recordsMap.set(r.point, r));
@@ -211,7 +211,7 @@ async function processWidthTransitions(
 	const pointKey = (p: { x: number; y: number }) => `${p.x.toFixed(3)},${p.y.toFixed(3)}`;
 	let transitionCount = 0;
 
-	// 遍历每个分组
+	// Process each group
 	for (const [groupKey, groupTracks] of netLayerMap) {
 		if (groupTracks.length < 2)
 			continue;
@@ -219,7 +219,7 @@ async function processWidthTransitions(
 		const isNoNet = groupKey.startsWith('__NO_NET__');
 		const actualNet = isNoNet ? '' : groupKey.replace(/^net_/, '').replace(/_layer_\d+$/, '');
 
-		// 查找端点相连但线宽不同的导线对
+		// Find track pairs with connected endpoints but different widths
 		for (let i = 0; i < groupTracks.length; i++) {
 			for (let j = i + 1; j < groupTracks.length; j++) {
 				const t1 = groupTracks[i];
@@ -228,17 +228,17 @@ async function processWidthTransitions(
 				const w1 = t1.getState_LineWidth();
 				const w2 = t2.getState_LineWidth();
 
-				// 只处理线宽不同的情况
+				// Only process cases with different widths
 				if (isClose(w1, w2, 0.01))
 					continue;
 
-				// 获取端点
+				// Get endpoints
 				const t1Start = { x: t1.getState_StartX(), y: t1.getState_StartY() };
 				const t1End = { x: t1.getState_EndX(), y: t1.getState_EndY() };
 				const t2Start = { x: t2.getState_StartX(), y: t2.getState_StartY() };
 				const t2End = { x: t2.getState_EndX(), y: t2.getState_EndY() };
 
-				// 检查所有可能的端点连接
+				// Check all possible endpoint connections
 				const tolerance = 0.1;
 				const connections: Array<{
 					point: { x: number; y: number };
@@ -275,16 +275,16 @@ async function processWidthTransitions(
 					});
 				}
 
-				// 处理连接点
+				// Process connection points
 				for (const conn of connections) {
 					const key = pointKey(conn.point);
 
-					// 防止本次运行重复处理同一个点
+					// Prevent duplicate processing of the same point in this run
 					if (processedPointsInCurrentRun.has(key)) {
 						continue;
 					}
 
-					// 检查是否有旧的过渡数据，如果有则清理
+					// Check for old transition data, clean up if exists
 					if (recordsMap.has(key)) {
 						const oldRecord = recordsMap.get(key)!;
 						if (oldRecord.ids && oldRecord.ids.length > 0) {
@@ -292,13 +292,13 @@ async function processWidthTransitions(
 								await eda.pcb_PrimitiveLine.delete(oldRecord.ids);
 							}
 							catch (e: any) {
-								logError(`删除旧过渡失败: ${e.message || e}`);
+								logError(`Failed to delete old transition: ${e.message || e}`);
 							}
 						}
 						recordsMap.delete(key);
 					}
 
-					// 检查共线
+					// Check collinearity
 					const len1 = Math.sqrt(conn.t1Dir.x ** 2 + conn.t1Dir.y ** 2);
 					const len2 = Math.sqrt(conn.t2Dir.x ** 2 + conn.t2Dir.y ** 2);
 					if (len1 < 0.001 || len2 < 0.001)
@@ -306,39 +306,39 @@ async function processWidthTransitions(
 
 					const dot = (conn.t1Dir.x * conn.t2Dir.x + conn.t1Dir.y * conn.t2Dir.y) / (len1 * len2);
 
-					// 角度差小于 30 度
+					// Angle difference less than 30 degrees
 					if (Math.abs(Math.abs(dot) - 1) > 0.13) {
 						if (settings.debug) {
-							debugLog(`跳过非共线连接点: dot=${dot.toFixed(3)}`, 'Transitions');
+							debugLog(`Skipping non-collinear connection: dot=${dot.toFixed(3)}`, 'Transitions');
 						}
 						continue;
 					}
 
-					debugLog(`找到线宽过渡点: w1=${w1.toFixed(2)}, w2=${w2.toFixed(2)}, point=${key}`, 'Transitions');
+					debugLog(`Found width transition point: w1=${w1.toFixed(2)}, w2=${w2.toFixed(2)}, point=${key}`, 'Transitions');
 
-					// 标记为已处理
+					// Mark as processed
 					processedPointsInCurrentRun.add(key);
 
-					// 确定方向和窄端线长
+					// Determine direction and narrow track length
 					let transitionDir: { x: number; y: number };
 					let narrowTrackLength: number;
 
-					// 计算两条线的实际长度
+					// Calculate actual lengths of both tracks
 					const t1Length = dist(t1Start, t1End);
 					const t2Length = dist(t2Start, t2End);
 
 					if (w1 < w2) {
-						// t1 是窄线
+						// t1 is the narrow track
 						transitionDir = { x: -conn.t1Dir.x, y: -conn.t1Dir.y };
 						narrowTrackLength = t1Length;
 					}
 					else {
-						// t2 是窄线
+						// t2 is the narrow track
 						transitionDir = { x: conn.t2Dir.x, y: conn.t2Dir.y };
 						narrowTrackLength = t2Length;
 					}
 
-					// 创建过渡线段
+					// Create transition segments
 					const ids = await createWidthTransition(
 						conn.point,
 						transitionDir,
@@ -351,7 +351,7 @@ async function processWidthTransitions(
 					);
 
 					if (ids.length > 0) {
-						// 记录新创建的过渡
+						// Record newly created transition
 						recordsMap.set(key, {
 							point: key,
 							ids,
@@ -359,7 +359,7 @@ async function processWidthTransitions(
 						transitionCount++;
 					}
 
-					// 防止卡死
+					// Prevent UI freezing
 					if (transitionCount % 5 === 0) {
 						await new Promise(r => setTimeout(r, 10));
 					}
@@ -368,7 +368,7 @@ async function processWidthTransitions(
 		}
 	}
 
-	debugLog(`完成，创建了 ${transitionCount} 个过渡`, 'Transitions');
+	debugLog(`Complete, created ${transitionCount} transitions`, 'Transitions');
 
 	return {
 		data: {
@@ -379,20 +379,20 @@ async function processWidthTransitions(
 }
 
 /**
- * 创建线宽过渡（使用多条线段 + 贝塞尔曲线插值实现平滑过渡）
- * 过渡向窄线方向延伸，起点为宽线宽度，终点为窄线宽度
- * @param point 过渡起点坐标
- * @param point.x X 坐标
- * @param point.y Y 坐标
- * @param direction 过渡方向向量
- * @param direction.x X 分量
- * @param direction.y Y 分量
- * @param width1 第一条线的宽度
- * @param width2 第二条线的宽度
- * @param layer PCB 层
- * @param net 网络名称
- * @param narrowTrackLength 窄端线的长度，过渡不会超过此长度
- * @param settings 扩展设置
+ * Create width transition (using multiple line segments + Bezier curve interpolation for smooth transition).
+ * Transition extends toward the narrow track, starting at the wide width and ending at the narrow width.
+ * @param point Transition start coordinate
+ * @param point.x X coordinate
+ * @param point.y Y coordinate
+ * @param direction Transition direction vector
+ * @param direction.x X component
+ * @param direction.y Y component
+ * @param width1 Width of the first track
+ * @param width2 Width of the second track
+ * @param layer PCB layer
+ * @param net Net name
+ * @param narrowTrackLength Length of the narrow track; transition won't exceed this
+ * @param settings Extension settings
  */
 async function createWidthTransition(
 	point: { x: number; y: number },
@@ -406,71 +406,71 @@ async function createWidthTransition(
 ): Promise<string[]> {
 	const createdIds: string[] = [];
 
-	// 归一化方向（direction 已经指向窄线方向）
+	// Normalize direction (direction already points toward narrow track)
 	const len = Math.sqrt(direction.x ** 2 + direction.y ** 2);
 	if (len < 0.001)
 		return createdIds;
 
-	// 方向指向窄线
+	// Direction points toward narrow track
 	const ux = direction.x / len;
 	const uy = direction.y / len;
 
-	// 确定宽窄
+	// Determine wide and narrow widths
 	const wideWidth = Math.max(width1, width2);
 	const narrowWidth = Math.min(width1, width2);
 	const widthDiff = wideWidth - narrowWidth;
 
-	// 过渡长度（向窄线方向延伸）
-	// 计算理想过渡长度，但不超过窄端线长的 90%（留一点余量）
+	// Transition length (extends toward narrow track)
+	// Calculate ideal length, but don't exceed 90% of narrow track length (leave some margin)
 	const idealLength = widthDiff * (settings.widthTransitionRatio || 1.5);
 	const maxAllowedLength = narrowTrackLength * 0.9;
 	const transitionLength = Math.min(idealLength, maxAllowedLength);
 
-	// 如果过渡长度太短，跳过
+	// If transition length is too short, skip
 	if (transitionLength < 1) {
-		debugLog(`跳过：过渡长度太短 (${transitionLength.toFixed(2)})`, 'Transitions');
+		debugLog(`Skipped: transition length too short (${transitionLength.toFixed(2)})`, 'Transitions');
 		return createdIds;
 	}
 
-	debugLog(`理想长度=${idealLength.toFixed(2)}, 实际长度=${transitionLength.toFixed(2)}`, 'Transitions');
+	debugLog(`Ideal length=${idealLength.toFixed(2)}, actual length=${transitionLength.toFixed(2)}`, 'Transitions');
 
-	// 过渡段数计算
-	// 动态计算需要的段数以保证平滑度
-	// 调整：避免过高密度导致API问题
-	const minStep = 2; // mil (之前是0.5，太密了)
+	// Segment count calculation
+	// Dynamically calculate needed segments for smoothness
+	// Adjusted: avoid overly high density causing API issues
+	const minStep = 2; // mil (was 0.5, too dense)
 
 	const segmentsByLen = Math.ceil(transitionLength / minStep);
 	const segmentsByWidth = Math.ceil(widthDiff / minStep);
 
-	// 限制最大段数来自设置
+	// Max segments from settings
 	const maxSegments = settings.widthTransitionSegments || 30;
 
-	// 最终段数：计算得出的段数，但限制最大值
-	// 最小 5 段，最大由用户设置决定
+	// Final segment count: calculated count, but limited to max
+	// Minimum 5 segments, maximum from user settings
 	let segments = Math.min(maxSegments, Math.max(5, segmentsByLen, segmentsByWidth));
 
-	// 如果是极短的过渡，进一步降低段数
+	// For very short transitions, further reduce segment count
 	if (transitionLength < 5) {
 		segments = Math.min(segments, 6);
 	}
 
-	debugLog(`创建贝塞尔过渡: 长度=${transitionLength.toFixed(2)}, 段数=${segments}`, 'Transitions');
+	debugLog(`Creating Bezier transition: length=${transitionLength.toFixed(2)}, segments=${segments}`, 'Transitions');
 
-	// 使用贝塞尔曲线插值创建渐变线段
-	// 从连接点（t=0, wideWidth）向窄线方向延伸（t=1, narrowWidth）
-	// 起点线宽=宽线宽度（覆盖连接处），终点线宽=窄线宽度（与窄线相切）
+	// Use Bezier curve interpolation to create gradient segments
+	// From connection point (t=0, wideWidth) extending toward narrow track (t=1, narrowWidth)
+	// Start width=wide width (covers connection), end width=narrow width (tangent to narrow track)
 	for (let i = 0; i < segments; i++) {
 		const t1 = i / segments;
 		const t2 = (i + 1) / segments;
 
-		// 使用贝塞尔曲线插值线宽
-		// t=0 时为 wideWidth，t=1 时为 narrowWidth
-		// 修正：使用 t2 (段尾) 计算宽度，确保最后一段的结束宽度正好等于 narrowWidth
-		// 这样可以避免在与窄线连接处出现"台阶"
+		// Bezier curve interpolation for width
+		// t=0 -> wideWidth, t=1 -> narrowWidth
+		// Fix: use t2 (segment end) to calculate width, ensuring last segment ends exactly at narrowWidth
+		// This avoids a "step" at the narrow track connection
 		const bezierT = smootherStep(t2);
 		const w = wideWidth - widthDiff * bezierT;
 
-		// 计算线段位置（从连接点向窄线方向延伸）
+		// Calculate segment position (extending from connection point toward narrow track)
 		const p1 = {
 			x: point.x + ux * (t1 * transitionLength),
 			y: point.y + uy * (t1 * transitionLength),
@@ -497,7 +497,7 @@ async function createWidthTransition(
 			}
 		}
 		catch (err) {
-			logError(`创建线段失败: ${err}`, 'Transitions');
+			logError(`Failed to create line segment: ${err}`, 'Transitions');
 		}
 	}
 
@@ -505,7 +505,7 @@ async function createWidthTransition(
 }
 
 /**
- * 移除已创建的线宽过渡
+ * Remove created width transitions
  */
 export async function removeWidthTransitions() {
 	try {
@@ -517,13 +517,13 @@ export async function removeWidthTransitions() {
 					await eda.pcb_PrimitiveLine.delete(allIds);
 				}
 				catch {
-					// 忽略删除失败
+					// Ignore deletion failures
 				}
 			}
 			await saveTransitionData({ records: [] });
 		}
 	}
 	catch {
-		// 忽略错误
+		// Ignore errors
 	}
 }

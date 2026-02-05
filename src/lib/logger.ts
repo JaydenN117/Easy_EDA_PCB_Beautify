@@ -1,21 +1,21 @@
 import { getCachedSettings } from './settings';
 
 /**
- * 调试日志工具
- * 使用 eda.sys_Log 来输出日志信息
+ * Debug logging utility
+ * Uses eda.sys_Log to output log messages
  */
 
 /**
- * 日志类型
+ * Log type
  */
 type LogType = 'info' | 'warn' | 'error';
 
 const BASE_PREFIX = 'Beautify';
 
 /**
- * 格式化日志前缀
- * @param scope 可选的作用域 (如 Snapshot, PCB)
- * @param level 可选的级别 (如 Error, Warning)
+ * Format log prefix
+ * @param scope Optional scope (e.g., Snapshot, PCB)
+ * @param level Optional level (e.g., Error, Warning)
  */
 function getPrefix(scope?: string, level?: string): string {
 	let prefix = `[${BASE_PREFIX}`;
@@ -28,11 +28,11 @@ function getPrefix(scope?: string, level?: string): string {
 }
 
 /**
- * 添加日志
- * @param message - 日志消息
- * @param type - 日志类型 (用于 eda.sys_Log 控制)
- * @param scope - 作用域
- * @param level - 显示在消息中的级别字符串
+ * Add log entry
+ * @param message - Log message
+ * @param type - Log type (for eda.sys_Log control)
+ * @param scope - Scope
+ * @param level - Level string displayed in message
  */
 export function log(message: string, type: LogType = 'info', scope?: string, level?: string): void {
 	if (eda.sys_Log && typeof eda.sys_Log.add === 'function') {
@@ -42,36 +42,36 @@ export function log(message: string, type: LogType = 'info', scope?: string, lev
 }
 
 /**
- * 输出信息日志
+ * Output info log
  */
 export function logInfo(message: string, scope?: string): void {
 	log(message, 'info', scope);
 }
 
 /**
- * 输出警告日志
+ * Output warning log
  */
 export function logWarn(message: string, scope?: string): void {
 	log(message, 'warn', scope, 'Warning');
 }
 
 /**
- * 输出错误日志
+ * Output error log
  */
 export function logError(message: string, scope?: string): void {
 	log(message, 'error', scope, 'Error');
 }
 
 /**
- * 输出调试日志 (用于开发调试)
- * @param messageOrFirst - 日志消息或第一个参数
- * @param messages - 其他可选参数
+ * Output debug log (for development debugging)
+ * @param messageOrFirst - Log message or first argument
+ * @param messages - Other optional arguments
  */
 export function debugLog(messageOrFirst: any, ...messages: any[]): void {
 	if (!getCachedSettings().debug)
 		return;
 
-	// 处理多参数情况
+	// Handle multi-argument case
 	let fullMsg = '';
 	if (messages.length > 0) {
 		const all = [messageOrFirst, ...messages];
@@ -85,7 +85,7 @@ export function debugLog(messageOrFirst: any, ...messages: any[]): void {
 }
 
 /**
- * 输出调试警告 (仅在调试模式下输出警告)
+ * Output debug warning (only outputs in debug mode)
  */
 export function debugWarn(message: string, scope?: string): void {
 	if (!getCachedSettings().debug)

@@ -98,7 +98,7 @@
 		"node_modules/@jlceda/pro-api-types": false,
 		"**/EDA_EX_DOC/**/*.js*": true,
 		"**/EDA_EX_DOC/**/*_files/**": true,
-		"**/*.js.下载": true
+		"**/*.js.download": true
 	},
 	"files.exclude": {
 		"**/EDA_EX_DOC/**/*.js*": true,

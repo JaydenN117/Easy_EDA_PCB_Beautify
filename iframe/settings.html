@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>设置 - 美化PCB</title>
+    <title>Settings - Beautify PCB</title>
     <style>
         :root {
             --primary: #4285f4;
@@ -344,13 +344,13 @@
 
     <!-- General Settings -->
     <div class="card">
-        <div class="card-title" data-i18n="通用设置">通用设置</div>
+        <div class="card-title" data-i18n="通用设置">General Settings</div>
 
         <!-- Radius -->
         <div class="setting-item">
             <div class="setting-info">
-                <div class="setting-label" data-i18n="最大圆角半径">最大圆角半径</div>
-                <div class="setting-desc" data-i18n="控制圆弧过渡的最大半径大小">控制圆弧过渡的最大半径大小</div>
+                <div class="setting-label" data-i18n="最大圆角半径">Max Corner Radius</div>
+                <div class="setting-desc" data-i18n="控制圆弧过渡的最大半径大小">Controls the maximum arc transition radius</div>
             </div>
             <div class="setting-control">
                 <div class="input-group">
@@ -368,8 +368,8 @@
         <!-- Sync Width -->
         <div class="setting-item">
             <div class="setting-info">
-                <div class="setting-label" data-i18n="自动线宽过渡">自动线宽过渡</div>
-                <div class="setting-desc" data-i18n="圆滑时处理不同线宽">圆滑布线时是否自动处理不同线宽的过渡</div>
+                <div class="setting-label" data-i18n="自动线宽过渡">Auto Width Transition</div>
+                <div class="setting-desc" data-i18n="圆滑时处理不同线宽">Automatically handle different widths when smoothing routing</div>
             </div>
             <div class="setting-control">
                 <div class="switch-container">
@@ -377,7 +377,7 @@
                         <input type="checkbox" id="syncWidthTransition">
                         <span class="slider"></span>
                     </label>
-                    <span class="switch-label" id="syncWidthLabel" data-i18n="启用">启用</span>
+                    <span class="switch-label" id="syncWidthLabel" data-i18n="启用">Enable</span>
                 </div>
             </div>
         </div>
@@ -385,13 +385,13 @@
         <!-- Segments -->
         <div class="setting-item">
             <div class="setting-info">
-                <div class="setting-label" data-i18n="最大过渡段数">最大过渡段数</div>
-                <div class="setting-desc" data-i18n="防止段数过多导致卡顿">线宽过渡的最大分段数，防止段数过多导致卡顿</div>
+                <div class="setting-label" data-i18n="最大过渡段数">Max Transition Segments</div>
+                <div class="setting-desc" data-i18n="防止段数过多导致卡顿">Max gradient segments for width transition, prevents lag from too many segments</div>
             </div>
             <div class="setting-control">
                 <div class="input-group">
                     <input type="text" id="widthTransitionSegments" data-min="5" data-max="100" data-step="1" value="25">
-                    <span class="addon" data-i18n="段">段</span>
+                    <span class="addon" data-i18n="段">segments</span>
                 </div>
             </div>
         </div>
@@ -399,8 +399,8 @@
         <!-- Ratio -->
         <div class="setting-item">
             <div class="setting-info">
-                <div class="setting-label" data-i18n="过渡长度最大比例">过渡长度最大比例</div>
-                <div class="setting-desc" data-i18n="过渡区长度比率">过渡区长度与线宽差值的最大比率，实际长度不超过窄端线长</div>
+                <div class="setting-label" data-i18n="过渡长度最大比例">Max Transition Ratio</div>
+                <div class="setting-desc" data-i18n="过渡区长度比率">Max ratio of transition length to width difference; actual length won't exceed narrow track length</div>
             </div>
             <div class="setting-control">
                 <div class="input-group">
@@ -413,13 +413,13 @@
 
     <!-- DRC Settings -->
     <div class="card">
-        <div class="card-title" data-i18n="设计规则检查 (DRC)">设计规则检查 (DRC)</div>
+        <div class="card-title" data-i18n="设计规则检查 (DRC)">Design Rule Check (DRC)</div>
         
         <!-- Enable DRC -->
         <div class="setting-item">
             <div class="setting-info">
-                <div class="setting-label" data-i18n="启用安全检查">启用安全检查</div>
-                <div class="setting-desc" data-i18n="生成圆弧时检查是否违反间距规则">生成圆弧时检查是否违反间距规则 (与周围Pad/Track)</div>
+                <div class="setting-label" data-i18n="启用安全检查">Enable Safety Check</div>
+                <div class="setting-desc" data-i18n="生成圆弧时检查是否违反间距规则">Check spacing rule violations when generating arcs (against nearby Pads/Tracks)</div>
             </div>
             <div class="setting-control">
                 <div class="switch-container">
@@ -427,7 +427,7 @@
                         <input type="checkbox" id="enableDRC">
                         <span class="slider"></span>
                     </label>
-                    <span class="switch-label" id="enableDRCLabel" data-i18n="启用">启用</span>
+                    <span class="switch-label" id="enableDRCLabel" data-i18n="启用">Enable</span>
                 </div>
             </div>
         </div>
@@ -435,8 +435,8 @@
         <!-- Clearance -->
         <div class="setting-item">
             <div class="setting-info">
-                <div class="setting-label" data-i18n="安全间距">安全间距</div>
-                <div class="setting-desc" data-i18n="圆弧与周围物体的最小距离">圆弧与周围物体的最小距离 (建议设为 6mil 以上)</div>
+                <div class="setting-label" data-i18n="安全间距">Safety Clearance</div>
+                <div class="setting-desc" data-i18n="圆弧与周围物体的最小距离">Minimum distance between arcs and surrounding objects (recommend 6mil+)</div>
             </div>
             <div class="setting-control">
                 <div class="input-group">
@@ -449,16 +449,16 @@
 
     <!-- Advanced -->
     <div class="card">
-        <div class="card-title" data-i18n="高级设置">高级设置</div>
+        <div class="card-title" data-i18n="高级设置">Advanced Settings</div>
 
         <!-- Merge Short Segments -->
         <div class="setting-item">
             <div class="setting-info">
                 <div class="setting-label">
-                    <span data-i18n="合并短线段">合并短线段</span>
+                    <span data-i18n="合并短线段">Merge Short Segments</span>
                     <span style="background:#fff3e0;color:#ef6c00;padding:2px 6px;border-radius:4px;font-size:10px;margin-left:6px;">Beta</span>
                 </div>
-                <div class="setting-desc" data-i18n="自动合并过短的中间线段以生成圆弧">自动合并过短的中间线段以生成圆弧</div>
+                <div class="setting-desc" data-i18n="自动合并过短的中间线段以生成圆弧">Automatically merge short intermediate segments to generate arcs</div>
             </div>
             <div class="setting-control">
                 <div class="switch-container">
@@ -466,7 +466,7 @@
                         <input type="checkbox" id="mergeShortSegments" checked>
                         <span class="slider"></span>
                     </label>
-                    <span class="switch-label" id="mergeShortSegmentsLabel" data-i18n="启用">启用</span>
+                    <span class="switch-label" id="mergeShortSegmentsLabel" data-i18n="启用">Enable</span>
                 </div>
             </div>
         </div>
@@ -475,10 +475,10 @@
         <div class="setting-item">
             <div class="setting-info">
                 <div class="setting-label">
-                    <span data-i18n="强制生成圆弧">强制生成圆弧</span>
+                    <span data-i18n="强制生成圆弧">Force Arc Generation</span>
                     <span style="background:#fff3e0;color:#ef6c00;padding:2px 6px;border-radius:4px;font-size:10px;margin-left:6px;">Beta</span>
                 </div>
-                <div class="setting-desc" data-i18n="短线段导致圆弧不相切也生成（半径减小）">短线段导致圆弧不相切也生成（半径减小）</div>
+                <div class="setting-desc" data-i18n="短线段导致圆弧不相切也生成（半径减小）">Generate even if segment is too short (reduce radius)</div>
             </div>
             <div class="setting-control">
                 <div class="switch-container">
@@ -486,7 +486,7 @@
                         <input type="checkbox" id="forceArc" checked>
                         <span class="slider"></span>
                     </label>
-                    <span class="switch-label" id="forceArcLabel" data-i18n="启用">启用</span>
+                    <span class="switch-label" id="forceArcLabel" data-i18n="启用">Enable</span>
                 </div>
             </div>
         </div>
@@ -494,8 +494,8 @@
         <!-- Debug -->
         <div class="setting-item">
             <div class="setting-info">
-                <div class="setting-label" data-i18n="调试模式">调试模式</div>
-                <div class="setting-desc" data-i18n="启用调试日志">在日志栏打印</div>
+                <div class="setting-label" data-i18n="调试模式">Debug Mode</div>
+                <div class="setting-desc" data-i18n="启用调试日志">Print detailed logs in the console</div>
             </div>
             <div class="setting-control">
                 <div class="switch-container">
@@ -503,7 +503,7 @@
                         <input type="checkbox" id="debug">
                         <span class="slider"></span>
                     </label>
-                    <span class="switch-label" id="debugLabel" data-i18n="启用">启用</span>
+                    <span class="switch-label" id="debugLabel" data-i18n="启用">Enable</span>
                 </div>
             </div>
         </div>
@@ -513,42 +513,42 @@
 
     <div class="card">
         <div class="card-title">
-            <span data-i18n="布线状态管理">布线状态管理</span>
+            <span data-i18n="布线状态管理">Snapshot Manager</span>
             <span id="snapshotCount" style="font-weight: normal; color: var(--text-hint); font-size: 12px; margin-left: 4px;"></span>
         </div>
 
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
             <!-- View Toggle -->
             <div class="filter-bar" style="display: flex; gap: 4px; background: #eee; padding: 4px; border-radius: 6px;">
-                <button id="btnShowManual" class="btn btn-ghost" style="padding: 4px 10px; font-size: 12px; border-radius: 4px; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,0.1); color: var(--primary);" data-i18n="手动快照">手动快照</button>
-                <button id="btnShowAuto" class="btn btn-ghost" style="padding: 4px 10px; font-size: 12px; border-radius: 4px; color: var(--text-secondary);" data-i18n="自动快照">自动快照</button>
+                <button id="btnShowManual" class="btn btn-ghost" style="padding: 4px 10px; font-size: 12px; border-radius: 4px; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,0.1); color: var(--primary);" data-i18n="手动快照">Manual Snapshots</button>
+                <button id="btnShowAuto" class="btn btn-ghost" style="padding: 4px 10px; font-size: 12px; border-radius: 4px; color: var(--text-secondary);" data-i18n="自动快照">Auto Snapshots</button>
                 <div style="width: 1px; background: #ddd; margin: 2px 0;"></div>
-                <button type="button" class="btn btn-ghost" id="refreshSnapshotBtn" style="padding: 4px 10px; font-size: 16px; line-height: 1; border-radius: 4px;" title="刷新列表"><span class="refresh-icon" style="display:inline-block">↻</span></button>
+                <button type="button" class="btn btn-ghost" id="refreshSnapshotBtn" style="padding: 4px 10px; font-size: 16px; line-height: 1; border-radius: 4px;" title="Refresh list"><span class="refresh-icon" style="display:inline-block">&#8635;</span></button>
             </div>
 
             <!-- Actions -->
             <div style="display: flex; gap: 8px;">
-                <button type="button" class="btn btn-primary" id="createSnapshotBtn" style="padding: 4px 12px; font-size: 12px;" data-i18n="新增快照">新增快照</button>
-                <button type="button" class="btn btn-danger" id="clearSnapshotsBtn" style="padding: 4px 12px; font-size: 12px;" data-i18n="清除手动">清除手动</button>
+                <button type="button" class="btn btn-primary" id="createSnapshotBtn" style="padding: 4px 12px; font-size: 12px;" data-i18n="新增快照">New Snapshot</button>
+                <button type="button" class="btn btn-danger" id="clearSnapshotsBtn" style="padding: 4px 12px; font-size: 12px;" data-i18n="清除手动">Clear Manual</button>
             </div>
         </div>
 
         <div id="snapshotList" class="snapshot-container">
-            <div class="snapshot-placeholder" data-i18n="暂无快照">暂无快照</div>
+            <div class="snapshot-placeholder" data-i18n="暂无快照">No Snapshots</div>
         </div>
     </div>
 
     <div class="footer-status">
         <div class="status-badge" id="saveStatus">
             <span style="font-size: 14px;"></span> 
-            <span data-i18n="设置即时生效">设置即时生效</span>
+            <span data-i18n="设置即时生效">Settings take effect immediately</span>
         </div>
         <div style="display: flex; align-items: center; gap: 10px; color: var(--text-hint); font-size: 12px;">
-            <span><span data-i18n="作者">作者</span>: <span style="font-weight: 500; color: var(--text-secondary);">m-RNA</span></span>
+            <span><span data-i18n="作者">Author</span>: <span style="font-weight: 500; color: var(--text-secondary);">m-RNA</span></span>
             <span style="color: #ddd;">|</span>
             <a href="javascript:void(0)" onclick="openUrl('https://github.com/m-RNA/Easy_EDA_PCB_Beautify')" style="color: var(--primary); text-decoration: none; border-bottom: 1px dashed var(--primary);">GitHub</a>
         </div>
-        <button type="button" class="btn btn-white" id="closeBtn" onclick="tryClose()" data-i18n="关闭" style="min-width: 120px;">关闭</button>
+        <button type="button" class="btn btn-white" id="closeBtn" onclick="tryClose()" data-i18n="关闭" style="min-width: 120px;">Close</button>
     </div>
     
     <div id="toast" class="toast">Settings Saved</div>
@@ -651,15 +651,15 @@
         const elForceArcLabel = document.getElementById('forceArcLabel');
         const elEnableDRCLabel = document.getElementById('enableDRCLabel');
 
-        // 默认配置 (将在 init 中从 API 获取)
+        // Default config (will be loaded from API during init)
         let DEFAULT_CONFIG = {};
 
         let currentUnitState = 'mil';
 
         function updateSwitchLabels() {
             const api = API || getEda();
-            const enabledText = (api && api.sys_I18n) ? api.sys_I18n.text('启用') : '启用';
-            const disabledText = (api && api.sys_I18n) ? api.sys_I18n.text('禁用') : '禁用';
+            const enabledText = (api && api.sys_I18n) ? api.sys_I18n.text('启用') : 'Enable';
+            const disabledText = (api && api.sys_I18n) ? api.sys_I18n.text('禁用') : 'Disable';
 
             elSyncWidthLabel.textContent = elSyncWidth.checked ? enabledText : disabledText;
             elDebugLabel.textContent = elDebug.checked ? enabledText : disabledText;
@@ -675,13 +675,13 @@
             elEnableDRCLabel.style.color = elEnableDRC.checked ? 'var(--primary)' : 'var(--text-secondary)';
         }
 
-        // Load
+        // Load settings from storage
         async function loadSettings() {
             const api = API || getEda();
             if (!api)
                 return;
 
-            // 尝试同步默认配置配置
+            // Try to sync default config
             if (typeof api.jlc_eda_beautify_getDefaultSettings === 'function') {
                 try {
                     DEFAULT_CONFIG = api.jlc_eda_beautify_getDefaultSettings();
@@ -711,11 +711,11 @@
 
                 // Initialize step based on unit for keyboard/custom stepper
                 if (currentUnitState === 'mm') {
-                    // 0.1 mm
+                    // 0.1 mm step
                     elCornerRadius.setAttribute('data-step', '0.1');
                 }
                 else {
-                    // 1 mil (User requested 1 mil step, not 0.1)
+                    // 1 mil step
                     elCornerRadius.setAttribute('data-step', '1');
                 }
 
@@ -743,7 +743,7 @@
             }
         }
 
-        // Save
+        // Save settings to storage
         async function saveSettings(silent = false) {
             const api = API || getEda();
             if (!api)
@@ -783,7 +783,7 @@
                 await api.sys_Storage.setExtensionAllUserConfigs(settings);
                 updateSwitchLabels();
 
-                // 通知插件主进程刷新设置缓存
+                // Notify the main extension process to refresh settings cache
                 if (typeof api.jlc_eda_beautify_refreshSettings === 'function') {
                     await api.jlc_eda_beautify_refreshSettings();
                 }
@@ -983,8 +983,7 @@
                 elCornerRadius.setAttribute('data-step', '1');
             }
 
-            // Format to reasonable precision (keep 2 decimal places for conversion stability, but inputs accept 3)
-            // Using 3 here to align with the new input capability
+            // Format to reasonable precision (3 decimal places)
             elCornerRadius.value = Number.parseFloat(newVal.toFixed(3));
             elCornerRadius.setAttribute('data-last-valid', elCornerRadius.value);
 
@@ -996,7 +995,7 @@
         const snapshotList = document.getElementById('snapshotList');
         let currentPcbId = null;
 
-        // 定期检查 PCB 切换
+        // Periodically check for PCB document changes
         // View Mode State
         let currentViewType = 'manual';
 
@@ -1015,7 +1014,7 @@
                 if (pid && pid !== currentPcbId) {
                     currentPcbId = pid;
                     
-                    // 自动刷新动画
+                    // Auto-refresh animation
                     const btn = document.getElementById('refreshSnapshotBtn');
                     const icon = btn ? btn.querySelector('.refresh-icon') : null;
                     if (icon) {
@@ -1023,7 +1022,7 @@
                         setTimeout(() => icon.classList.remove('rotating'), 600);
                     }
 
-                    refreshSnapshots(); // PCB 改变，刷新列表
+                    refreshSnapshots(); // PCB changed, refresh list
                 }
             } catch (e) { /* ignore */ }
         }
@@ -1077,26 +1076,26 @@
                 return;
                 
             try {
-                // 确保我们有当前的 PCB ID
+                // Make sure we have the current PCB ID
                 if (!currentPcbId) {
                    await checkPcbChange();
                 }
 
                 if (!currentPcbId) {
-                     // 依然没有 PCB，可能是没打开文档
-                     snapshotList.innerHTML = `<div class="snapshot-placeholder">${api.sys_I18n ? api.sys_I18n.text('请先打开PCB文档') : 'Please open a PCB'}</div>`;
+                     // Still no PCB - document may not be open
+                     snapshotList.innerHTML = `<div class="snapshot-placeholder">${api.sys_I18n ? api.sys_I18n.text('请先打开PCB文档') : 'Please open a PCB document'}</div>`;
                      document.getElementById('snapshotCount').textContent = `(0/0)`;
                      return;
                 }
 
-                // 根据当前视图模式获取快照
+                // Get snapshots based on current view mode
                 const snapshots = await api.jlc_eda_beautify_snapshot.getSnapshots(currentPcbId, currentViewType);
 
                  console.log(`[Settings] Snapshots for PCB ${currentPcbId} (${currentViewType}): ${snapshots.length}`);
 
                 // Update Count safely
                 const countEl = document.getElementById('snapshotCount');
-                // 获取限制数量，默认为 20
+                // Get limit, default to 20
                 const limit = (api.jlc_eda_beautify_snapshot && api.jlc_eda_beautify_snapshot.SNAPSHOT_LIMIT) ? api.jlc_eda_beautify_snapshot.SNAPSHOT_LIMIT : 20;
 
                 if (countEl)
@@ -1109,16 +1108,15 @@
 
                 snapshotList.innerHTML = '';
                 if (snapshots.length === 0) {
-                    const emptyText = api.sys_I18n ? api.sys_I18n.text('暂无快照') : '暂无快照';
+                    const emptyText = api.sys_I18n ? api.sys_I18n.text('暂无快照') : 'No Snapshots';
                     snapshotList.innerHTML = `<div class="snapshot-placeholder">${emptyText}</div>`;
                     return;
                 }
 
-                // 列表是已经排好序的(如果后端没排，这里再排一次)
-                // const sorted = [...snapshots].sort((a, b) => b.timestamp - a.timestamp);
+                // List is already sorted (if backend didn't sort, sort here again)
                 const sorted = snapshots;
                 
-                // 获取最后一次恢复的 ID
+                // Get the last restored snapshot ID
                 const lastRestoredId = api.jlc_eda_beautify_snapshot.getLastRestoredId ? api.jlc_eda_beautify_snapshot.getLastRestoredId() : null;
 
                 sorted.forEach((snap, index) => {
@@ -1128,13 +1126,13 @@
                     const timeStr = new Date(snap.timestamp).toLocaleTimeString();
                     let nameStr = snap.name;
                     if (!nameStr) {
-                        nameStr = api.sys_I18n ? api.sys_I18n.text('自动快照') : 'Automatic Snapshot';
+                        nameStr = api.sys_I18n ? api.sys_I18n.text('自动快照') : 'Auto Snapshot';
                     }
                     else if (api.sys_I18n && (nameStr === '手动快照' || nameStr === 'Manual Snapshot')) {
                         nameStr = api.sys_I18n.text(nameStr);
                     }
 
-                    // 如果是最后一次撤销的快照，添加标记 (使用 == 进行宽松比较，避免类型问题)
+                    // If this is the last undone snapshot, add a badge
                     let badgeHtml = '';
 
                     const isLastRestored = lastRestoredId !== null && String(snap.id) === String(lastRestoredId);
@@ -1144,14 +1142,14 @@
                         console.log('[Settings] Badge shown for snapshot:', snap.id);
                     }
 
-                    // 如果是最新的快照
+                    // If this is the latest snapshot
                     if (index === 0) {
                         const latestText = api.sys_I18n ? api.sys_I18n.text('最新') : 'Latest';
                         badgeHtml += `<span style="background:#e8f5e9;color:#2e7d32;padding:2px 6px;border-radius:4px;font-size:10px;margin-left:6px;">${latestText}</span>`;
                     }
 
-                    const recoverText = api.sys_I18n ? api.sys_I18n.text('恢复') : 'Recover';
-                    const deleteText = api.sys_I18n ? api.sys_I18n.text('删除') : 'Del';
+                    const recoverText = api.sys_I18n ? api.sys_I18n.text('恢复') : 'Restore';
+                    const deleteText = api.sys_I18n ? api.sys_I18n.text('删除') : 'Delete';
                     const linesCount = snap.lines ? snap.lines.length : 0;
                     const arcsCount = snap.arcs ? snap.arcs.length : 0;
                     const linesText = `${linesCount} Lines, ${arcsCount} Arcs`;
@@ -1163,21 +1161,21 @@
                         </div>
                         <div style="display:flex;gap:4px;">
                             <button type="button" class="btn btn-white btn-recover" style="padding:4px 10px;font-size:12px;">${recoverText}</button>
-                            <button type="button" class="btn btn-ghost btn-delete" style="padding:4px 8px;font-size:12px;color:#d32f2f;" title="${deleteText}">✕</button>
+                            <button type="button" class="btn btn-ghost btn-delete" style="padding:4px 8px;font-size:12px;color:#d32f2f;" title="${deleteText}">&#10005;</button>
                         </div>
                     `;
 
                     // Recover Button
                     div.querySelector('.btn-recover').onclick = async () => {
-                        // 直接调用恢复，参数3传 true 表示需要后端弹窗确认 (或者由后端处理 ID 不匹配警告)
-                        // 这样避免在 UI 线程和后端线程同时发起弹窗导致冲突
+                        // Call restore directly; pass true for backend confirmation dialogs
+                        // This avoids conflicting popups from both UI and backend threads
                         try {
                             const result = await api.jlc_eda_beautify_snapshot.restoreSnapshot(snap.id, true, true);
                             if (result) {
                                 const restoredText = api.sys_I18n ? api.sys_I18n.text('已恢复') : 'Restored';
                                 showToast(restoredText);
                             }
-                            // 此时不显示 "Restore returned false" 这种技术错误，因为可能是用户在对话框点了取消
+                            // Don't show "Restore returned false" - user may have cancelled the dialog
                         }
                         catch (err) {
                             api.sys_Dialog.showInformationMessage(`Restore failed: ${err}`);
@@ -1186,7 +1184,7 @@
 
                     // Delete Button
                     div.querySelector('.btn-delete').onclick = (e) => {
-                        e.stopPropagation(); // 阻止冒泡
+                        e.stopPropagation(); // Prevent event bubbling
                         const confirmDelText = api.sys_I18n ? api.sys_I18n.text('确定要删除此快照吗？') : 'Delete this snapshot?';
                         if (api.sys_Dialog) {
                             api.sys_Dialog.showConfirmationMessage(confirmDelText, api.sys_I18n ? api.sys_I18n.text('删除快照') : 'Delete Snapshot', undefined, undefined, async (ok) => {
@@ -1212,12 +1210,12 @@
             if (icon) icon.classList.add('rotating');
             
             try {
-                // 强制检查一次 PCB ID 变化
+                // Force check for PCB ID changes
                 await checkPcbChange();
                 await refreshSnapshots();
             }
             finally {
-                // 至少转 600ms (正好一圈)
+                // Spin for at least 600ms (one full rotation)
                 setTimeout(() => {
                     if (icon) icon.classList.remove('rotating');
                 }, 600);
@@ -1285,10 +1283,10 @@
                 translatePage();
                 refreshSnapshots();
 
-                // 注册快照变化回调，当主代码创建/删除快照时自动刷新列表
+                // Register snapshot change callback so the list auto-refreshes when main code creates/deletes snapshots
                 const api = API || getEda();
                 if (api && api.jlc_eda_beautify_snapshot && typeof api.jlc_eda_beautify_snapshot.registerSnapshotChangeCallback === 'function') {
-                    // 使用新版显式注册接口
+                    // Use the explicit registration interface
                     api.jlc_eda_beautify_snapshot.registerSnapshotChangeCallback(() => {
                         refreshSnapshots().catch((err) => {
                             console.error('[Settings] Snapshot refresh failed:', err);
@@ -1297,9 +1295,9 @@
                     console.log('[Settings] Snapshot callback registered');
                 }
 
-                // 额外保险：定时轮询检查快照数量变化
+                // Extra safety: poll for snapshot count changes
                 const poller = async () => {
-                    // 如果是手动模式，不轮询
+                    // Don't poll in manual mode
                     if (currentViewType === 'manual') return;
 
                     const currentApi = API || getEda();
@@ -1309,7 +1307,7 @@
                     try {
                         const snapshots = await currentApi.jlc_eda_beautify_snapshot.getSnapshots(currentPcbId, 'auto');
 
-                        // 只有数量变化时才重绘列表
+                        // Only redraw if count changed
                         if (snapshots.length !== lastSnapshotCount && lastSnapshotCount !== -1) {
                             refreshSnapshots();
                         }
@@ -1320,7 +1318,7 @@
                     }
                 };
 
-                // 启动轮询 (2秒一次)
+                // Start polling (every 2 seconds)
                 setInterval(poller, 2000);
             });
         }

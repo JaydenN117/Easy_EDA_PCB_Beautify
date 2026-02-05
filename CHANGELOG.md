@@ -2,71 +2,71 @@
 
 ## 1.0.5-rc1 (2026-02-05)
 
-### ✨ 新增
+### New
 
-- 设计规则检查(DRC)设置，包含启用选项和安全间距配置
+- Design Rule Check (DRC) settings, including enable toggle and safety clearance configuration
 
 ## 1.0.4 (2026-02-04)
 
-### ✨ 优化
+### Improvements
 
-- 设置界面：全新UI布局，独立快照管理卡片；增加自动/手动快照视图切换
-- 动画效果：优化刷新按钮交互，文档切换或数据刷新时播放丝滑的旋转动画
+- Settings UI: completely new layout with dedicated snapshot management card; added auto/manual snapshot view toggle
+- Animations: improved refresh button interaction with smooth spinning animation on document switch or data refresh
 
-### 🚀 核心升级 (快照管理 V2)
+### Core Upgrade (Snapshot Management V2)
 
-- 智能分支：实现Git风格的时间线管理，撤销后产生新变更时自动截断无效的"未来"历史
-- 深度去重：引入基于图元ID排序的深度比对算法，彻底解决乱序导致的假性重复快照
-- 逻辑修正：修复撤销操作索引计算错误，消除跳过状态的Bug
-- 代码重构：清理遗留代码，全面转移在 V2 存储结构
+- Smart branching: Git-style timeline management; automatically truncates invalid "future" history when new changes occur after an undo
+- Deep deduplication: introduced deep comparison algorithm based on sorted primitive IDs, completely resolving false duplicate snapshots caused by ordering differences
+- Logic fix: fixed undo operation index calculation error, eliminating the state-skipping bug
+- Code refactoring: cleaned up legacy code, fully migrated to V2 storage structure
 
-### 📝 其他
+### Other
 
-- 更新相关文档、设置界面图片
-- 重命名扩展名称：熔化/优化/美化PCB (融化)
+- Updated documentation and settings UI screenshots
+- Renamed extension: Beautify/Optimize/Smooth PCB Routing
 
 ## 1.0.3-rc1 (2026-02-03)
 
-### ✨ 新增
+### New
 
-- 扩展名称和描述优化
-- 中文翻译表达优化
-- 版本号更新至1.0.3
+- Optimized extension name and description
+- Improved translation quality
+- Version bump to 1.0.3
 
 ## 1.0.2 (2026-02-02)
 
-### ✨ 新增
+### New
 
-- 重命名扩展名称：熔化PCB-美化PCB（融化）
-- 添加"熔化"和"Melt"关键字
-- 更新主页和问题链接
-- 版本号更新至1.0.2
+- Renamed extension
+- Added "Melt" keyword
+- Updated homepage and issue links
+- Version bump to 1.0.2
 
 ## 1.0.1 (2026-02-02)
 
-### ✨ 新增
+### New
 
-- 设置界面：支持简单的数学表达式运算；支持键盘上下按键、鼠标滚轮调整数值
-- 设置界面：添加作者信息
+- Settings UI: supports simple math expression evaluation; supports keyboard up/down arrows and mouse wheel for value adjustment
+- Settings UI: added author information
 
-### 🐛 修复
+### Bug Fixes
 
-- 快照管理：添加PCB_ID检查，防止恢复错误快照；优化用户撤销体验，保存用户操作前后快照；手动创建快照时不与最新记录的快照重复
-- 设置界面：修复JS警告，输入框合法检查
-- 代码清洗：移除不必要无用代码，统一日志前缀格式
+- Snapshot management: added PCB ID check to prevent restoring incorrect snapshots; improved undo experience by saving pre/post operation snapshots; manual snapshot creation no longer duplicates the latest recorded snapshot
+- Settings UI: fixed JS warnings, input validation improvements
+- Code cleanup: removed unnecessary unused code, unified log prefix format
 
 ## 1.0.0 (2026-02-01)
 
-### ✨ 功能
+### Features
 
-- 圆滑布线：将直角拐角转换为平滑圆弧
-- 线宽过渡：不同线宽间平滑渐变，基于贝塞尔曲线
-- 快照管理：一键备份/恢复布线状态
-- 撤销支持：操作前自动备份，随时回退
-- 设置界面：可配置圆角半径、过渡参数、快照选项等
+- Smooth Routing: converts right-angle corners to smooth arcs
+- Width Transition: smooth gradients between different track widths, based on Bezier curves
+- Snapshot Management: one-click backup/restore routing state
+- Undo Support: automatic backup before operations, revert at any time
+- Settings UI: configurable corner radius, transition parameters, snapshot options, and more
 
-### 📝 说明
+### Notes
 
-- 支持选中处理和全局处理两种模式
-- 圆弧基于实际圆弧图元，可二次编辑半径
-- 线宽过渡智能限制，不超过窄端线长
+- Supports both selected and global processing modes
+- Arcs are based on actual arc primitives, allowing radius editing after creation
+- Width transitions are intelligently limited to not exceed the narrow track length

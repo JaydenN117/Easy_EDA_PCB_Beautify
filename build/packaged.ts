@@ -6,20 +6,20 @@ import JSZip from 'jszip';
 import * as extensionConfig from '../extension.json';
 
 /**
- * 将多行字符串拆分成字符串数组
+ * Split a multi-line string into a string array
  *
- * @param str - 多行字符串
- * @returns 字符串数组
+ * @param str - Multi-line string
+ * @returns String array
  */
 function multiLineStrToArray(str: string): Array<string> {
 	return str.split(/[\r\n]+/);
 }
 
 /**
- * 检查 UUID 是否合法
+ * Check if a UUID is valid
  *
  * @param uuid - UUID
- * @returns 是否合法
+ * @returns Whether it is valid
  */
 function testUuid(uuid?: string): uuid is string {
 	const regExp = /^[a-z0-9]{32}$/;
@@ -32,7 +32,7 @@ function testUuid(uuid?: string): uuid is string {
 }
 
 /**
- * 获取正确的 UUID
+ * Get a valid UUID
  *
  * @param uuid - UUID
  * @returns UUID
@@ -48,7 +48,7 @@ function fixUuid(uuid?: string): string {
 }
 
 /**
- * 主逻辑方法
+ * Main logic
  */
 function main() {
 	if (!testUuid(extensionConfig.uuid)) {
@@ -72,7 +72,7 @@ function main() {
 	const edaignore = ignore().add(edaignoreList);
 	const filepathListWithoutResolve = edaignore.filter(filepathListWithoutFilter);
 	const fileList: Array<string> = [];
-	const folderList: Array<string> = []; // 无用数据
+	const folderList: Array<string> = []; // Unused data
 	for (const filepath of filepathListWithoutResolve) {
 		if (fs.lstatSync(filepath).isFile()) {
 			fileList.push(filepath.replace(/\\/g, '/'));

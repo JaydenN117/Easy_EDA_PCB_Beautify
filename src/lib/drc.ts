@@ -6,8 +6,8 @@ import { getSettings } from './settings';
 // Removed checkArcClearance and helper getDistToPrim
 
 /**
- * 运行 DRC 检查并解析结果
- * @returns 涉及违规的原语 ID 列表
+ * Run DRC check and parse results
+ * @returns Set of primitive IDs involved in violations
  */
 export async function runDrcCheckAndParse(): Promise<Set<string>> {
 	const violatedIds = new Set<string>();
@@ -32,7 +32,7 @@ export async function runDrcCheckAndParse(): Promise<Set<string>> {
 			const sampleKeys = Object.keys(issues[0]);
 			debugLog(`[DRC Debug] First issue keys: ${JSON.stringify(sampleKeys)}`);
 			try {
-				// 强制转换为字符串以确保显示
+				// Force convert to string to ensure display
 				const issueStr = JSON.stringify(issues[0]);
 				debugLog(`[DRC Debug] First issue JSON: ${issueStr}`);
 			}
@@ -41,13 +41,13 @@ export async function runDrcCheckAndParse(): Promise<Set<string>> {
 			}
 		}
 
-		// 改进的递归 ID 提取器，针对嵌套的 DRC 结果结构优化
-		// 结构通常是: Category -> list[] -> SubCategory -> list[] -> Issue -> objs[]
+		// Improved recursive ID extractor, optimized for nested DRC result structures
+		// Structure is typically: Category -> list[] -> SubCategory -> list[] -> Issue -> objs[]
 		const extractIdsRecursive = (obj: any, foundIds: Set<string>, depth: number = 0) => {
-			if (!obj || typeof obj !== 'object' || depth > 8) // 增加深度限制
+			if (!obj || typeof obj !== 'object' || depth > 8) // Depth limit
 				return;
 
-			// 1. 明确的 ID 容器 (根据 log 结构)
+			// 1. Explicit ID containers (based on log structure)
 			if (Array.isArray(obj.objs)) {
 				for (const id of obj.objs) {
 					if (typeof id === 'string')
@@ -55,7 +55,7 @@ export async function runDrcCheckAndParse(): Promise<Set<string>> {
 				}
 			}
 
-			// 2. 备用路径: explanation.errData
+			// 2. Fallback path: explanation.errData
 			if (obj.explanation && obj.explanation.errData) {
 				const data = obj.explanation.errData;
 				if (data.obj1 && typeof data.obj1 === 'string')
@@ -64,7 +64,7 @@ export async function runDrcCheckAndParse(): Promise<Set<string>> {
 					foundIds.add(data.obj2);
 			}
 
-			// 3. 通用对象属性检查
+			// 3. Generic object property check
 			if (obj.id && typeof obj.id === 'string')
 				foundIds.add(obj.id);
 			if (obj.uuid && typeof obj.uuid === 'string')
@@ -74,7 +74,7 @@ export async function runDrcCheckAndParse(): Promise<Set<string>> {
 			if (obj.gId && typeof obj.gId === 'string')
 				foundIds.add(obj.gId);
 
-			// 4. 递归遍历 list 数组和其他属性
+			// 4. Recursively traverse list arrays and other properties
 			if (Array.isArray(obj.list)) {
 				for (const item of obj.list) {
 					extractIdsRecursive(item, foundIds, depth + 1);
@@ -86,13 +86,13 @@ export async function runDrcCheckAndParse(): Promise<Set<string>> {
 				}
 			}
 			else {
-				// 遍历对象属性，寻找可能的嵌套结构
+				// Traverse object properties looking for possible nested structures
 				for (const key of Object.keys(obj)) {
-					// 优化：已处理过的属性不再处理
+					// Optimization: skip already-handled properties
 					if (key === 'objs' || key === 'list' || key === 'explanation')
 						continue;
 					if (key === 'parent' || key === 'document' || key === 'owner')
-						continue; // 避免循环
+						continue; // Avoid circular references
 
 					const val = obj[key];
 					if (typeof val === 'object') {

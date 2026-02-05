@@ -4,10 +4,10 @@ export interface Point {
 }
 
 /**
- * 比较两个浮点数是否足够接近
- * @param a 第一个数
- * @param b 第二个数
- * @param eps 误差阈值，默认 0.001
+ * Compare whether two floating-point numbers are close enough
+ * @param a First number
+ * @param b Second number
+ * @param eps Error threshold, default 0.001
  */
 export function isClose(a: number, b: number, eps: number = 0.001): boolean {
 	return Math.abs(a - b) < eps;
@@ -25,14 +25,14 @@ export function lerp(p1: Point, p2: Point, t: number): Point {
 }
 
 /**
- * 计算角度 (0-360)
+ * Calculate angle (0-360)
  */
 export function getAngle(p1: Point, p2: Point): number {
 	return (Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180) / Math.PI;
 }
 
 /**
- * 计算两个向量之间的夹角 (有符号)
+ * Calculate signed angle between two vectors
  */
 export function getAngleBetween(v1: Point, v2: Point): number {
 	let angle = getAngle({ x: 0, y: 0 }, v2) - getAngle({ x: 0, y: 0 }, v1);
@@ -42,7 +42,7 @@ export function getAngleBetween(v1: Point, v2: Point): number {
 }
 
 /**
- * 3次贝塞尔曲线
+ * Cubic Bezier curve
  */
 export function cubicBezier(p0: Point, p1: Point, p2: Point, p3: Point, t: number): Point {
 	const mt = 1 - t;
@@ -53,7 +53,7 @@ export function cubicBezier(p0: Point, p1: Point, p2: Point, p3: Point, t: numbe
 }
 
 /**
- * 计算两条线的交点
+ * Calculate intersection point of two lines
  */
 export function getLineIntersection(p1: Point, p2: Point, p3: Point, p4: Point): Point | null {
 	if (!p1 || !p2 || !p3 || !p4)
@@ -70,9 +70,9 @@ export function getLineIntersection(p1: Point, p2: Point, p3: Point, p4: Point):
 }
 
 /**
- * 五次贝塞尔缓动函数 (smootherStep)
- * t: 0-1 的参数
- * 返回: 0-1 的平滑值
+ * Quintic Bezier easing function (smootherStep)
+ * t: parameter from 0-1
+ * Returns: smooth value from 0-1
  */
 export function smootherStep(t: number): number {
 	return t * t * t * (t * (t * 6 - 15) + 10);
